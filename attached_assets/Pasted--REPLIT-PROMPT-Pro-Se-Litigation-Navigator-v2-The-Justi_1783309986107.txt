@@ -1,0 +1,264 @@
+# REPLIT PROMPT — Pro Se Litigation Navigator v2: "The Justice Engine"
+
+Upgrade my existing full-stack app "Pro Se Litigation Navigator" into a complete self-advocacy platform with a free tier and two paid subscription tiers. Keep everything already built (case dashboard, story intake, evidence upload, jurisdiction analyzer, IFP/AO 239/AO 240 prep, verified complaint builder, defense mode, court document scanner, court roadmap, local court finder, research engine, settlement mode, drafting center, case memory, safety checklist). Now expand it as follows.
+
+---
+
+## NEW MISSION STATEMENT (drives all design decisions)
+
+The app is no longer just for lawsuits. It is a **justice engine for everyday people** who feel powerless in disputes with businesses, landlords, debt collectors, insurers, police, and government agencies. Most users start with a small dispute, not a federal complaint. The app must meet them there and escalate with them: complaint letter → agency complaint → demand letter → small claims → full litigation.
+
+Legal positioning stays strict: the app provides **legal information, document preparation assistance, and organization tools — not legal advice**. It never predicts case outcomes, never guarantees results, and always encourages verification of local rules and consultation with an attorney when possible. Disclaimers appear at signup, in every generated document footer, and before any filing export.
+
+---
+
+## PART 1 — NEW FEATURE MODULES
+
+### 1. Everyday Dispute Resolver (the daily-use engine — FREE entry point)
+A guided intake asks: "Who are you having a problem with?" and routes to a workflow:
+- **Debt collector** → FDCPA violation checker, debt validation letter, cease-contact letter, dispute letters to credit bureaus (FCRA)
+- **Landlord** → security deposit demand letter, repair demand, habitability notice, retaliation documentation log
+- **Insurance company** → claim denial appeal letter, bad-faith documentation checklist, state insurance commissioner complaint
+- **Business/merchant** → refund demand, chargeback guidance, BBB/FTC/state AG complaint generator
+- **Government agency** → FOIA / state public records request generator with agency lookup, appeal letter if denied
+- **Police/civil rights** → internal affairs complaint template, bodycam footage request, incident documentation journal, notice-of-claim deadline warnings for suing government entities
+- **Employer** → wage claim guidance, EEOC intake preparation, documentation timeline
+Each workflow produces a professional letter/complaint, logs it to a dispute file, sets a follow-up reminder, and explains the escalation path ("if no response in 30 days, here are your next options").
+
+### 2. Small Claims Wizard
+- Detects the user's state and shows that state's small claims limit, filing fee, and where to file
+- Damage calculator (actual damages, statutory damages where applicable, fees, interest)
+- Generates the story into a clean statement of claim
+- Pre-hearing checklist: evidence to bring, witnesses, what to expect, courtroom etiquette
+- "Collect your judgment" module: post-win steps (abstract of judgment, wage garnishment info, debtor exam basics — informational only)
+
+### 3. Mock Hearing Simulator (flagship $79 feature)
+- AI role-plays a judge asking the user questions about their case based on their actual case file
+- AI role-plays opposing counsel cross-examining them or arguing a motion to dismiss
+- After each session: a coaching report — what they answered well, where they rambled, which facts they forgot, which questions exposed weaknesses
+- Modes: "Motion Hearing," "Small Claims Trial," "Mediation Session," "Deposition Practice"
+- Voice mode: user speaks answers aloud (speech-to-text), making it feel like real practice
+
+### 4. Case Strength Meter
+- After intake + evidence upload, generate a 0–100 "Case Readiness Score" with a visual gauge
+- Breaks down into: Evidence strength, Legal element coverage, Deadline status, Procedural readiness, Documentation quality
+- Each weak area links to a fix action ("You describe a contract but haven't uploaded it — upload it to strengthen element 2")
+- Framed carefully in UI copy as "readiness and organization score," NOT a prediction of winning
+- Score updates live as the user improves the file — this is the core engagement/retention loop
+
+### 5. Deadline Guardian
+- Extracts deadlines from scanned court documents automatically
+- Statute-of-limitations lookup by state and claim type with countdown timers
+- Email reminders on free tier; **SMS/text reminders on paid tiers** (Twilio integration)
+- Calendar sync (Google Calendar / .ics export)
+- Escalating urgency: 30 days out, 14, 7, 3, 1 — with "here's what you need to have done by now"
+
+### 6. Trial & Hearing Binder Builder
+- One click assembles the entire case into a print-ready PDF binder: cover page, table of contents, tabbed exhibit sections with auto-generated exhibit labels (Exhibit A, B, C...), chronology, witness list, key documents, notes pages
+- "Hearing Day Kit": one-page cheat sheet with case number, judge, courtroom, top 5 facts, top 3 things to ask for, documents checklist
+
+### 7. Opposing Document Weakness Analyzer ($79 tier)
+- Upload anything filed by the other side; AI flags: missed deadlines, unsupported assertions, procedural defects, contradictions with earlier statements, improper service, missing verification/signatures
+- Produces an "issues to raise" memo with the relevant procedural rules to verify
+
+### 8. Discovery Command Center ($79 tier)
+- Generates interrogatories, requests for production, and requests for admission tailored to the case facts
+- Tracks what was sent, response deadlines, and what came back
+- Analyzes opponent's discovery responses for evasion and objection abuse; drafts meet-and-confer letters and motion-to-compel outlines
+
+### 9. Voice Story Intake
+- Prominent "Just talk — tell us what happened" button using speech-to-text
+- AI transcribes, then asks clarifying follow-up questions conversationally, then structures it into the formal case story
+- Critical for accessibility: many users in this audience are intimidated by long forms
+
+### 10. Plain-English Translator
+- Paste or photograph any legal text → instant plain-English explanation at an 8th-grade reading level
+- Hover/tap glossary throughout the app: every legal term underlined with a one-line definition
+- Free tier gets 5 translations/month (top-of-funnel hook that goes viral on social)
+
+### 11. Justice Journey (motivation + retention layer)
+- Visual progress path with milestones: "Story Told → Evidence Organized → Case Analyzed → Documents Drafted → Filed → Served → Responded → Resolved"
+- Milestone celebrations with encouraging, calm, professional messages
+- Weekly AI check-in email/notification: "Here's where your case stands, here's your next step, here's your next deadline"
+- Anonymized "Wins Wall": user-submitted success stories (moderated, with consent) showing real people who resolved disputes — social proof that drives conversion
+
+### 12. Clerk Call Coach
+- Generates a script for calling the court clerk: what to ask, what not to ask (clerks can't give legal advice), what information to have ready
+- Checklist of questions specific to the user's next step (e.g., "Ask if your district requires a paper courtesy copy")
+
+### 13. Spanish Language Support
+- Full UI toggle English/Español; AI responds in the user's language; documents generated in English (as courts require) with side-by-side Spanish explanation
+
+---
+
+## PART 2 — MONETIZATION: THREE TIERS + STRIPE
+
+Integrate Stripe subscriptions with a pricing page, in-app upgrade prompts, and a billing portal. Free trial: 7 days of War Room on signup (card required only at trial end).
+
+### FREE — "Know Your Rights"
+Goal: build trust, demonstrate power, create upgrade pressure at natural moments.
+- 1 active case/dispute file
+- Everyday Dispute Resolver: 2 letters per month
+- Story intake + evidence upload (10 files max)
+- Basic case summary + Case Strength Meter (score visible, detailed breakdown locked)
+- Document scanner: 3 scans/month, summary only (no draft responses)
+- Plain-English Translator: 5/month
+- Research: 5 queries/month
+- Deadline tracking with email reminders only
+- Document drafts viewable in-app but **watermarked "DRAFT — Pro Se Navigator"** on export; clean export requires payment
+- One-off purchases available: single clean document export $9, verified complaint package $29, IFP package $19 (this is both revenue and an upgrade ramp)
+
+### $20/month — "ADVOCATE" (annual: $199)
+Positioning: "Less than one hour of a paralegal — every month."
+Everything in Free, plus:
+- 3 active cases
+- Unlimited dispute letters + Small Claims Wizard (full)
+- Unlimited clean, watermark-free PDF/DOCX exports
+- Full drafting center (complaint, answer, motions, declarations, certificates of service)
+- Full IFP/fee waiver preparation (AO 239, AO 240, hardship declaration)
+- Document scanner: unlimited, with "what to do next" + draft response generation
+- Deadline Guardian with SMS reminders + calendar sync
+- Evidence timeline builder (unlimited files)
+- Research: 50 queries/month with citations
+- Voice intake
+- Trial Binder Builder (basic: binder + exhibit labels)
+- Priority email support
+
+### $79/month — "WAR ROOM" (annual: $790)
+Positioning: "Your full litigation command center — less than 15 minutes of a lawyer's time."
+Everything in Advocate, plus:
+- Unlimited cases (multi-case dashboard)
+- **Mock Hearing Simulator** (all modes, unlimited sessions, voice mode)
+- **Opposing Document Weakness Analyzer**
+- **Discovery Command Center** (generation + response analysis + motion-to-compel outlines)
+- Deep Research Engine: unlimited queries, case comparison, element-by-element pleading analysis, jurisdiction-variance warnings
+- Full Case Strength Meter breakdown with fix-it action plan
+- Weekly AI Case Coach check-in with strategy questions to consider
+- Advanced Trial Binder (witness outlines, chronology, hearing day kit)
+- Settlement Strategy suite (demand letters, mediation statements, risk framing)
+- Procedural Defect Scanner on all opposing filings
+- Priority AI processing (faster generation)
+- Early access to new features
+
+### Upgrade trigger moments (build these into the UX):
+- Free user hits watermarked export → modal: "Get this document clean and court-ready — $9 once, or go Advocate for unlimited"
+- Free user scans a court document with a deadline → "Advocate members get SMS deadline alerts so nothing slips"
+- Advocate user uploads an opposing motion → "War Room can analyze this filing for weaknesses and draft your opposition outline"
+- Any user 14 days before a hearing → "Practice with the Mock Hearing Simulator before you walk in"
+- Case Strength Meter shows locked breakdown → "See exactly what's weak and how to fix it"
+Never block a safety-critical warning behind a paywall (deadline warnings and procedural trap alerts are always shown to all tiers — paywall the *solutions*, not the *warnings*).
+
+---
+
+## PART 3 — TECHNICAL ADDITIONS
+
+- **Stripe**: subscriptions (monthly + annual), one-time purchases, customer billing portal, webhook handling for tier changes, feature-gating middleware checking subscription status on every gated route
+- **Twilio** (or similar): SMS deadline reminders for paid tiers
+- **Speech-to-text**: browser Web Speech API with server-side Whisper fallback for voice intake and mock hearing voice mode
+- **Feature flag system**: central config mapping every feature to tiers so gating is maintainable
+- **Usage metering**: track letters, scans, research queries, translations per user per month; reset monthly; show usage meters in UI
+- **Referral system**: give one month of Advocate free for each referred user who subscribes; unique referral links
+- **Admin analytics**: conversion funnel (signup → first document → paywall hit → subscription), churn, most-used modules, upgrade-trigger performance
+- **State law data layer**: table of all 50 states with small claims limits/fees, statute-of-limitations by claim category, public records law citations, notice-of-claim rules for suing government — flagged with "last verified" dates and an in-UI warning to verify currency
+- **PDF binder generation** with bookmarks and tabbed sections
+- **Push/email notification service** for Justice Journey check-ins and deadline escalations
+- Keep existing stack: Next.js, PostgreSQL, Supabase auth/storage, OpenAI API, web search API, OCR, vector embeddings for case-file search
+
+---
+
+## PART 4 — COMPLETE VISUAL REDESIGN: "2026 PREMIUM LEGAL TECH"
+
+**Do a full visual overhaul of the entire app.** The current UI looks dated and generic. Rebuild the interface to look like a flagship 2026 product from a top-tier AI company (think Linear, Vercel, OpenAI, Anthropic, Stripe-level polish). Every screen must be rebuilt on the design system below. Zero default browser styling anywhere.
+
+**Design system — non-negotiable rules:**
+
+*Typography (this is the #1 fix):*
+- UI font: **Inter** or **Geist** (variable font, loaded via next/font) for all interface text — never Arial, Helvetica, Times New Roman, or system default serif
+- Display font: **Space Grotesk** or **Söhne-style grotesque** for headlines, hero text, and section titles
+- Monospace accent: **JetBrains Mono** or **Geist Mono** for case numbers, deadlines, statutes, and data values (gives the "precision instrument" feel)
+- Tight, confident type scale: hero 56–72px with -2% letter-spacing, section headers 28–36px, body 15–16px with 1.6 line height, labels 12–13px uppercase with +8% letter-spacing
+- No pure black text on pure white — use layered neutrals
+
+*Color — dark-first theme:*
+- Base: deep charcoal-navy background (#0A0E1A to #0F1420 range) with elevated surface layers (#141A2A, #1A2138) — dark mode is the DEFAULT; offer a refined light mode toggle
+- Primary accent: electric indigo/violet (#6366F1 → #8B5CF6 gradient) for actions and progress
+- Signature accent: warm gold (#D4A843 or similar) used sparingly for justice-themed moments — milestones, the Case Strength gauge, "Wins Wall" — the scales-of-justice premium touch
+- Semantic colors: emerald for on-track, amber for approaching deadlines, red reserved ONLY for urgent deadlines and critical warnings so it retains power
+- Subtle gradient mesh or aurora glow behind hero sections and empty states — restrained, never carnival
+
+*Components & layout:*
+- Build on **Tailwind CSS + shadcn/ui** components, customized to this palette — no stock Bootstrap look
+- **Bento-grid dashboard**: Case Strength gauge (animated radial, gold sweep) top-left, Next Deadline countdown (monospace digits, color-shifts as it approaches) top-right, Justice Journey progress rail across the top, module cards in an asymmetric bento layout below
+- Cards: 12–16px radius, 1px borders at 8% white opacity, soft layered shadows, very subtle glass/blur on overlays and modals
+- Icons: **lucide-react** only, 1.5px stroke, consistent 20/24px sizing — no emoji as UI icons
+- Generous whitespace on an 8pt spacing grid; nothing cramped
+- Data visualization (timelines, deadlines, evidence chronology) styled like a modern analytics product — thin lines, smooth curves, tooltips on hover
+
+*Motion & micro-interactions (framer-motion):*
+- Page transitions: 150–250ms fade/slide, ease-out
+- Cards lift 2px with shadow bloom on hover; buttons have pressed states
+- Numbers count up when scores/stats load; the Case Strength gauge animates its sweep
+- Skeleton loaders (shimmer) for all async content — never blank white flashes or default spinners
+- AI responses stream in with a subtle typing indicator; generated documents "assemble" with a brief staggered fade of sections
+- Milestone completions: a single tasteful confetti-free celebration animation (glow pulse + checkmark draw) — dignified, not gamey
+
+*Signature screens:*
+- **Homepage**: dark hero with gradient mesh, huge display-font headline ("Justice, organized." or similar), a "What's your dispute?" command-palette-style input front and center, scenario grid below (debt collector, landlord, insurance, business, government, police, employer, "I'm being sued," "I want to sue," "I received a court document") as glowing bento cards
+- **Pricing page**: three columns on dark, Advocate highlighted with the indigo gradient border as "Most Popular," War Room with the gold accent as the flagship, feature comparison table with animated checkmarks
+- **Document Scanner result**: split view — scanned document on the left, plain-English breakdown streaming in on the right, extracted deadlines rendered as urgent monospace chips
+- **Mock Hearing Simulator**: immersive full-screen mode, dimmed edges, courtroom-serious atmosphere
+
+*Tone throughout:* calm, steady, dignified. Competent ally, not hype machine. Microcopy examples: "One step at a time. Today's step: identify your deadline." / "File with evidence, law, and procedure — not emotion."
+
+*Mobile-first:* the document scanner, voice intake, deadline countdown, and dashboard bento (collapsing to a single column) must be flawless on a phone.
+
+*Every generated document footer:* "Prepared with document-assistance software. This is legal information, not legal advice. Verify all rules, deadlines, and requirements with your court." (Note: exported COURT DOCUMENTS themselves keep traditional court formatting — Times New Roman/Century Schoolbook, double-spacing, proper caption format — the premium design is for the APP, never for the filings.)
+
+---
+
+## PART 4.5 — PACER CONCIERGE & COURT RECORDS HUB (new module, Advocate tier and above; setup guide free)
+
+PACER does not permit shared/embedded access — every user must have their own free PACER account, and PACER charges $0.10/page (fees fully waived if usage stays under $30/quarter, which covers nearly all pro se users). Build this module accordingly:
+
+**A. Case-Specific PACER Setup Guide (free tier)**
+- Detect the user's federal district from their case file (ZIP → district mapping, e.g., Baton Rouge → M.D. La.)
+- Show a personalized panel: "Your court is the [District Name]. Here's how to follow your case online."
+- Step-by-step walkthrough with screenshots-style instructions: create a PACER account at pacer.uscourts.gov, explain the fee structure and the $30/quarter automatic waiver in plain English, explain the difference between PACER (viewing) and CM/ECF (filing), and how pro se litigants request e-filing permission in that district
+- Deep links generated per case: the user's district court PACER login, that district's CM/ECF page, the PACER Case Locator, the district's local rules page, and its pro se handbook if one exists
+- If the case is state court: swap in that state's online case search portal (build a 50-state table of state court record search URLs) with equivalent guidance
+
+**B. Docket Tracker (Advocate)**
+- User enters their case number → app stores it and generates direct "check my docket" links
+- Integrate the free CourtListener REST API / RECAP archive to pull publicly available copies of federal filings and docket entries at no cost when they exist; clearly label documents that must be retrieved from PACER directly
+- Optional: let the user set up CourtListener docket alerts (guided) so they get emailed when anything new is filed in their case
+- Every retrieved or uploaded docket document flows into the existing Document Scanner for plain-English explanation, deadline extraction, and "what to do next"
+
+**C. PACER Power Tools (War Room)**
+- Optional PACER credential linking: user securely stores their own PACER login (encrypted at rest) so the app can query the PACER Case Locator API on their behalf for case lookups and docket sheets; show a running fee estimate before every query and warn before any action that could exceed the $30/quarter waiver
+- "Research similar cases": find comparable complaints filed in the user's district via CourtListener/RECAP so they can see how similar cases were pled and what happened procedurally
+- Judge Insight Card: pull the assigned judge's public information — standing orders, chambers rules link, and procedural preferences from court websites — into a one-page brief (public information only, neutrally presented)
+
+---
+
+## PART 5 — BUILD ORDER
+
+**Phase 1 (revenue foundation + facelift):** Full visual redesign per Part 4 design system (do this FIRST — it lifts perceived value of everything else) + Stripe integration + three tiers + feature gating + usage metering + watermarked exports + one-off document purchases + pricing page + upgrade-trigger modals
+
+**Phase 2 (market expansion):** Everyday Dispute Resolver (all 7 workflows) + Small Claims Wizard + Plain-English Translator + state law data layer + PACER Concierge setup guide with district detection and deep links
+
+**Phase 3 (retention + wow):** Deadline Guardian with SMS + Case Strength Meter + Justice Journey + weekly AI check-ins + voice intake
+
+**Phase 4 (premium differentiators):** Mock Hearing Simulator + Opposing Document Weakness Analyzer + Discovery Command Center + Trial Binder Builder + Docket Tracker (CourtListener/RECAP integration) + PACER Power Tools with credential linking and Judge Insight Cards
+
+**Phase 5 (growth):** Referral system + Wins Wall + Spanish support + admin analytics dashboard
+
+---
+
+## PART 6 — SAFETY & COMPLIANCE RULES (apply everywhere, all tiers)
+
+1. Never present output as legal advice; never predict outcomes or win probability; the Case Strength Meter measures *organization and readiness*, never odds of winning
+2. Every jurisdiction-specific fact shows a "verify with your court" prompt
+3. Deadline warnings and procedural trap alerts are never paywalled
+4. Before any export intended for filing, run the quality checklist (facts supported, claims connected to defendants, jurisdiction explained, exhibits labeled, professional tone, unsupported accusations flagged, formatting check, local-rules reminder)
+5. Prominent guidance to free/low-cost legal aid: include a Legal Aid Finder linking to LSC-funded programs, state bar lawyer referral services, and court self-help centers by ZIP code
+6. Terms of service and disclaimers written in plain English, acknowledged at signup
