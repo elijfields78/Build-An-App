@@ -832,7 +832,7 @@ router.get("/cases/:id/complaint", async (req, res) => {
   }
 });
 
-router.post("/cases/:id/complaint/generate", requireTier("advocate"), async (req, res) => {
+router.post("/cases/:id/complaint/generate", async (req, res) => {
   try {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });

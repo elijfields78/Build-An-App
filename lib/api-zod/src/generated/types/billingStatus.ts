@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { BillingStatusSubscription } from './billingStatusSubscription';
+import type { BillingStatusUsage } from './billingStatusUsage';
 
 export interface BillingStatus {
   /** free | advocate | warroom */
@@ -13,4 +14,6 @@ export interface BillingStatus {
   /** @nullable */
   stripeCustomerId?: string | null;
   subscription?: BillingStatusSubscription;
+  /** Monthly usage counters for metered features (only present for free-tier users) */
+  usage?: BillingStatusUsage;
 }

@@ -8,8 +8,9 @@ function currentMonth(): string {
 }
 
 export const FREE_TIER_LIMITS: Record<string, number> = {
-  research_ask: 3,
-  court_doc_scan: 2,
+  research_ask: 5,
+  court_doc_scan: 3,
+  dispute_letter: 2,
 };
 
 export class BillingStorage {

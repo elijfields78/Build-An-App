@@ -709,7 +709,11 @@ export const GetBillingStatusResponse = zod.object({
   "status": zod.string(),
   "productName": zod.string(),
   "currentPeriodEnd": zod.string().nullish()
-})]).optional()
+})]).optional(),
+  "usage": zod.union([zod.null(),zod.record(zod.string(), zod.object({
+  "used": zod.number(),
+  "limit": zod.number()
+}))]).optional().describe('Monthly usage counters for metered features (only present for free-tier users)')
 })
 
 

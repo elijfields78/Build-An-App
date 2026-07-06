@@ -13,6 +13,7 @@ export * from './billingPlanPricesItem';
 export * from './billingPlanPricesItemRecurring';
 export * from './billingStatus';
 export * from './billingStatusSubscription';
+export * from './billingStatusUsage';
 export * from './case';
 export * from './caseDetail';
 export * from './caseInput';

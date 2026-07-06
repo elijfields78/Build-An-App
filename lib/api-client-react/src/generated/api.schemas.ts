@@ -399,12 +399,22 @@ export type BillingStatusSubscription = {
   currentPeriodEnd?: string | null;
 } | null;
 
+/**
+ * Monthly usage counters for metered features (only present for free-tier users)
+ */
+export type BillingStatusUsage = null | {[key: string]: {
+  used: number;
+  limit: number;
+}};
+
 export interface BillingStatus {
   /** free | advocate | warroom */
   tier: string;
   /** @nullable */
   stripeCustomerId?: string | null;
   subscription?: BillingStatusSubscription;
+  /** Monthly usage counters for metered features (only present for free-tier users) */
+  usage?: BillingStatusUsage;
 }
 
 export type BillingPlanMetadata = { [key: string]: unknown };

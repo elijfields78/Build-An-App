@@ -1558,6 +1558,21 @@ components:
                 - id
                 - status
                 - productName
+        usage:
+          description: "Monthly usage counters for metered features (only present for free-tier users)"
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties:
+                type: object
+                properties:
+                  used:
+                    type: integer
+                  limit:
+                    type: integer
+                required:
+                  - used
+                  - limit
       required:
         - tier
 
