@@ -1,6 +1,16 @@
 import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { usersTable, userUsageTable } from "@workspace/db";
+import { eq, sql, and } from "drizzle-orm";
+
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export const FREE_TIER_LIMITS: Record<string, number> = {
+  research_ask: 3,
+  court_doc_scan: 2,
+};
 
 export class BillingStorage {
   async getOrCreateUser(userId: string, email?: string) {
@@ -42,7 +52,7 @@ export class BillingStorage {
           ORDER BY s.created DESC
           LIMIT 1`
     );
-    return (result.rows[0] as any) ?? null;
+    return (result.rows[0] as Record<string, unknown>) ?? null;
   }
 
   async getProductsWithPrices() {
@@ -63,11 +73,12 @@ export class BillingStorage {
           WHERE p.active = true
           ORDER BY pr.unit_amount ASC NULLS FIRST`
     );
-    const productsMap = new Map<string, any>();
-    for (const row of result.rows as any[]) {
-      if (!productsMap.has(row.product_id)) {
-        productsMap.set(row.product_id, {
-          id: row.product_id,
+    const productsMap = new Map<string, Record<string, unknown>>();
+    for (const row of result.rows as Record<string, unknown>[]) {
+      const productId = row.product_id as string;
+      if (!productsMap.has(productId)) {
+        productsMap.set(productId, {
+          id: productId,
           name: row.product_name,
           description: row.product_description,
           metadata: row.product_metadata,
@@ -75,7 +86,7 @@ export class BillingStorage {
         });
       }
       if (row.price_id) {
-        productsMap.get(row.product_id).prices.push({
+        (productsMap.get(productId)!.prices as unknown[]).push({
           id: row.price_id,
           unitAmount: row.unit_amount,
           currency: row.currency,
@@ -84,6 +95,57 @@ export class BillingStorage {
       }
     }
     return Array.from(productsMap.values());
+  }
+
+  async getAllowedPriceIds(): Promise<string[]> {
+    const result = await db.execute(
+      sql`SELECT pr.id FROM stripe.prices pr
+          JOIN stripe.products p ON p.id = pr.product
+          WHERE p.active = true AND pr.active = true AND pr.recurring IS NOT NULL`
+    );
+    return (result.rows as Record<string, unknown>[]).map((r) => r.id as string);
+  }
+
+  async getUsage(userId: string, feature: string): Promise<number> {
+    const month = currentMonth();
+    const [row] = await db
+      .select({ count: userUsageTable.count })
+      .from(userUsageTable)
+      .where(
+        and(
+          eq(userUsageTable.userId, userId),
+          eq(userUsageTable.feature, feature),
+          eq(userUsageTable.month, month)
+        )
+      );
+    return row?.count ?? 0;
+  }
+
+  async incrementUsage(userId: string, feature: string): Promise<number> {
+    const month = currentMonth();
+    const result = await db.execute(
+      sql`INSERT INTO user_usage (user_id, feature, month, count, updated_at)
+          VALUES (${userId}, ${feature}, ${month}, 1, NOW())
+          ON CONFLICT (user_id, feature, month)
+          DO UPDATE SET count = user_usage.count + 1, updated_at = NOW()
+          RETURNING count`
+    );
+    return ((result.rows[0] as Record<string, unknown>)?.count as number) ?? 1;
+  }
+
+  async getMonthlyUsageSummary(userId: string): Promise<Record<string, { used: number; limit: number }>> {
+    const month = currentMonth();
+    const rows = await db
+      .select()
+      .from(userUsageTable)
+      .where(and(eq(userUsageTable.userId, userId), eq(userUsageTable.month, month)));
+
+    const summary: Record<string, { used: number; limit: number }> = {};
+    for (const [feature, limit] of Object.entries(FREE_TIER_LIMITS)) {
+      const row = rows.find((r) => r.feature === feature);
+      summary[feature] = { used: row?.count ?? 0, limit };
+    }
+    return summary;
   }
 }
 

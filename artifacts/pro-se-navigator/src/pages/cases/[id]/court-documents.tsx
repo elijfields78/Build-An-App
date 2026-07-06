@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Trash2, FileText, UploadCloud, ShieldAlert, FileWarning, Clock } from "lucide-react";
+import { Trash2, FileText, UploadCloud, ShieldAlert, FileWarning, Clock, Zap } from "lucide-react";
 import { format } from "date-fns";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
+import { useBillingStatus } from "@/hooks/useBillingStatus";
 
 export default function CaseCourtDocuments({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
@@ -19,6 +21,11 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
   const deleteItem = useDeleteCourtDocument();
   const qc = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { tier, usage } = useBillingStatus();
+
+  const scanUsage = usage?.court_doc_scan;
+  const atLimit = tier === "free" && scanUsage && scanUsage.used >= scanUsage.limit;
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,6 +44,11 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
         body: formData,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
+
+      if (res.status === 403) {
+        setUpgradeOpen(true);
+        return;
+      }
 
       if (!res.ok) throw new Error("Upload failed");
       toast.success("Document uploaded successfully");
@@ -62,6 +74,13 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
 
   return (
     <CaseLayout caseId={params.id} title="Court Document Scanner">
+      <UpgradeModal
+        open={upgradeOpen}
+        onOpenChange={setUpgradeOpen}
+        requiredTier="advocate"
+        featureName="Court Document Scanner"
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
           <Card>
@@ -70,16 +89,41 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
               <CardDescription>Upload motions, orders, or notices you received from the court or opposing counsel.</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <form onSubmit={handleUpload} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="file">Select PDF or Image</Label>
-                  <Input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg" required />
+              {tier === "free" && scanUsage && (
+                <div className="mb-4 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                  <div className="flex items-center justify-between font-semibold mb-1">
+                    <span>Free tier usage</span>
+                    <span>{scanUsage.used}/{scanUsage.limit} scans</span>
+                  </div>
+                  <div className="h-1.5 bg-amber-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-500 rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (scanUsage.used / scanUsage.limit) * 100)}%` }}
+                    />
+                  </div>
                 </div>
-                <Button type="submit" disabled={isUploading} className="w-full">
-                  <UploadCloud className="h-4 w-4 mr-2" />
-                  {isUploading ? "Scanning..." : "Upload & Analyze"}
-                </Button>
-              </form>
+              )}
+
+              {atLimit ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-slate-700 font-semibold mb-1">Monthly scan limit reached</p>
+                  <p className="text-xs text-slate-500 mb-3">Upgrade for unlimited court document scanning.</p>
+                  <Button size="sm" onClick={() => setUpgradeOpen(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
+                    <Zap className="h-3.5 w-3.5 mr-1.5" /> Upgrade to Advocate
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleUpload} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="file">Select PDF or Image</Label>
+                    <Input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg" required />
+                  </div>
+                  <Button type="submit" disabled={isUploading} className="w-full">
+                    <UploadCloud className="h-4 w-4 mr-2" />
+                    {isUploading ? "Scanning..." : "Upload & Analyze"}
+                  </Button>
+                </form>
+              )}
             </CardContent>
           </Card>
 

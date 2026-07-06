@@ -4,6 +4,7 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 import { getAuth } from "@clerk/express";
 import { eq, sql, count } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { checkUsage } from "../lib/tierGate";
 import {
   researchSessionsTable,
   researchMessagesTable,
@@ -117,13 +118,13 @@ router.delete("/research/:id", async (req, res) => {
   }
 });
 
-// Ask a research question (streaming)
-router.post("/research/:id/ask", async (req, res) => {
+// Ask a research question (streaming) — gated by monthly usage limit for free tier
+router.post("/research/:id/ask", checkUsage("research_ask"), async (req, res) => {
   try {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { question } = req.body;
     if (!question) return res.status(400).json({ error: "Question required" });
 

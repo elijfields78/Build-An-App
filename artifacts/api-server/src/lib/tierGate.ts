@@ -1,11 +1,11 @@
 import { type RequestHandler } from "express";
 import { getAuth } from "@clerk/express";
-import { billingStorage } from "./billingStorage";
+import { billingStorage, FREE_TIER_LIMITS } from "./billingStorage";
 import { logger } from "./logger";
 
 export type Tier = "free" | "advocate" | "warroom";
 
-function productNameToTier(name?: string): Tier {
+export function productNameToTier(name?: string): Tier {
   if (!name) return "free";
   const lower = name.toLowerCase();
   if (lower.includes("war room") || lower.includes("warroom")) return "warroom";
@@ -48,6 +48,49 @@ export function requireTier(minTier: Tier): RequestHandler {
       });
       return;
     }
+    next();
+  };
+}
+
+/**
+ * Middleware that enforces monthly usage limits for free-tier users.
+ * Paid tiers bypass the limit entirely. On success, increments the counter.
+ */
+export function checkUsage(feature: string): RequestHandler {
+  const limit = FREE_TIER_LIMITS[feature];
+  if (limit === undefined) {
+    throw new Error(`Unknown feature for usage metering: ${feature}`);
+  }
+
+  return async (req, res, next): Promise<void> => {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const tier = await getUserTier(userId);
+
+    if (TIER_RANK[tier] >= TIER_RANK["advocate"]) {
+      next();
+      return;
+    }
+
+    const used = await billingStorage.getUsage(userId, feature);
+    if (used >= limit) {
+      res.status(403).json({
+        error: "upgrade_required",
+        requiredTier: "advocate" as Tier,
+        currentTier: tier,
+        usageLimitReached: true,
+        used,
+        limit,
+        message: `You've used all ${limit} free ${feature.replace("_", " ")} queries this month. Upgrade to Advocate for unlimited access.`,
+      });
+      return;
+    }
+
+    await billingStorage.incrementUsage(userId, feature);
     next();
   };
 }

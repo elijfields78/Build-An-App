@@ -4,6 +4,7 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 import { getAuth } from "@clerk/express";
 import { eq, and, count } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { checkUsage, requireTier } from "../lib/tierGate";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
@@ -487,7 +488,7 @@ router.get("/cases/:id/court-documents", async (req, res) => {
   }
 });
 
-router.post("/cases/:id/court-documents", upload.single("file"), async (req, res) => {
+router.post("/cases/:id/court-documents", upload.single("file"), checkUsage("court_doc_scan"), async (req, res) => {
   try {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -831,12 +832,12 @@ router.get("/cases/:id/complaint", async (req, res) => {
   }
 });
 
-router.post("/cases/:id/complaint/generate", async (req, res) => {
+router.post("/cases/:id/complaint/generate", requireTier("advocate"), async (req, res) => {
   try {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    const caseId = parseInt(req.params.id);
+    const caseId = parseInt(req.params.id as string);
     const c = await getOwnedCase(userId, caseId);
     if (!c) return res.status(404).json({ error: "Case not found" });
 

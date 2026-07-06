@@ -3,22 +3,27 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useListResearchSessions, useCreateResearchSession, useGetResearchSession, getGetResearchSessionQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
-import { BrainCircuit, BookOpen, Send, Loader2, Plus, Clock, ChevronLeft, X } from "lucide-react";
+import { BrainCircuit, BookOpen, Send, Loader2, Plus, Clock, ChevronLeft, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
+import { useBillingStatus } from "@/hooks/useBillingStatus";
 
 export default function LegalResearch() {
   const { getToken } = useAuth();
   const { data: sessions, isLoading: sessionsLoading } = useListResearchSessions();
   const createSession = useCreateResearchSession();
   const qc = useQueryClient();
+  const { tier, usage } = useBillingStatus();
 
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedResponse, setStreamedResponse] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeRequiredTier, setUpgradeRequiredTier] = useState<"advocate" | "warroom">("advocate");
 
   const { data: activeSession, isLoading: sessionLoading } = useGetResearchSession(activeSessionId || 0, {
     query: { enabled: !!activeSessionId, queryKey: getGetResearchSessionQueryKey(activeSessionId || 0) }
@@ -62,11 +67,11 @@ export default function LegalResearch() {
     setIsStreaming(true);
     setStreamedResponse("");
 
-    const oldSession = qc.getQueryData([`/api/research/sessions/${activeSessionId}`]) as any;
+    const oldSession = qc.getQueryData([`/api/research/sessions/${activeSessionId}`]) as { messages?: { id: number; role: string; content: string }[] } | undefined;
     if (oldSession) {
       qc.setQueryData([`/api/research/sessions/${activeSessionId}`], {
         ...oldSession,
-        messages: [...oldSession.messages, { id: Date.now(), role: "user", content: question }]
+        messages: [...(oldSession.messages ?? []), { id: Date.now(), role: "user", content: question }]
       });
     }
 
@@ -80,6 +85,15 @@ export default function LegalResearch() {
         },
         body: JSON.stringify({ question })
       });
+
+      if (res.status === 403) {
+        const body = await res.json() as { requiredTier?: "advocate" | "warroom" };
+        setUpgradeRequiredTier(body.requiredTier ?? "advocate");
+        setUpgradeOpen(true);
+        setIsStreaming(false);
+        setStreamedResponse("");
+        return;
+      }
 
       if (!res.ok) throw new Error("Request failed");
 
@@ -102,6 +116,9 @@ export default function LegalResearch() {
     }
   };
 
+  const researchUsage = usage?.research_ask;
+  const atLimit = tier === "free" && researchUsage && researchUsage.used >= researchUsage.limit;
+
   const SidebarPanel = () => (
     <div className="flex flex-col h-full bg-white">
       <div className="p-3 border-b bg-slate-50/50 flex items-center gap-2">
@@ -121,6 +138,30 @@ export default function LegalResearch() {
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {tier === "free" && researchUsage && (
+        <div className="px-3 py-2 border-b bg-amber-50 text-amber-800 text-xs">
+          <div className="flex items-center justify-between font-semibold mb-1">
+            <span>Free tier usage</span>
+            <span>{researchUsage.used}/{researchUsage.limit} questions</span>
+          </div>
+          <div className="h-1.5 bg-amber-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full transition-all"
+              style={{ width: `${Math.min(100, (researchUsage.used / researchUsage.limit) * 100)}%` }}
+            />
+          </div>
+          {atLimit && (
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="mt-2 w-full text-center text-xs font-bold text-amber-700 hover:text-amber-900 flex items-center justify-center gap-1"
+            >
+              <Zap className="h-3 w-3" /> Upgrade for unlimited access
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-2">
         <div className="px-2 pt-2 pb-1 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
           <Clock className="h-3 w-3" /> Recent Searches
@@ -156,6 +197,13 @@ export default function LegalResearch() {
 
   return (
     <AppLayout title="Legal Research">
+      <UpgradeModal
+        open={upgradeOpen}
+        onOpenChange={setUpgradeOpen}
+        requiredTier={upgradeRequiredTier}
+        featureName="Legal Research"
+      />
+
       <div className="flex flex-1 overflow-hidden min-h-0">
 
         {/* Mobile overlay */}
@@ -222,6 +270,11 @@ export default function LegalResearch() {
                     <div className="bg-slate-50 border rounded-lg p-4 text-sm text-slate-800 flex-1 leading-relaxed shadow-sm">
                       <p className="font-medium mb-2">Hello. I am your Legal Research Assistant.</p>
                       <p className="mb-3 text-slate-600 text-xs md:text-sm">I provide cited, factual answers on case law, statutes, and procedural rules.</p>
+                      {tier === "free" && researchUsage && (
+                        <p className="mb-3 text-amber-700 text-xs font-medium bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                          Free plan: {researchUsage.limit - researchUsage.used} of {researchUsage.limit} questions remaining this month
+                        </p>
+                      )}
                       <p className="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2">Example questions:</p>
                       <ul className="list-disc list-inside space-y-1 text-slate-700 text-xs md:text-sm">
                         <li>Statute of limitations for a written contract in California?</li>
@@ -265,23 +318,33 @@ export default function LegalResearch() {
 
           {/* Input */}
           <div className="p-3 border-t bg-slate-50 shrink-0">
-            <form onSubmit={handleSend} className="relative flex items-center max-w-3xl mx-auto">
-              <Input
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                disabled={isStreaming || !activeSessionId}
-                className="w-full rounded-full border-slate-300 shadow-sm pr-11 py-5 pl-4 text-sm md:text-base"
-                placeholder={activeSessionId ? "Ask a legal research question…" : "Start a session first"}
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={isStreaming || !inputValue.trim() || !activeSessionId}
-                className="absolute right-1.5 rounded-full h-8 w-8 md:h-9 md:w-9"
-              >
-                <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </Button>
-            </form>
+            {atLimit ? (
+              <div className="max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+                <p className="text-amber-800 font-semibold text-sm mb-2">Monthly research limit reached</p>
+                <p className="text-amber-700 text-xs mb-3">You've used all {researchUsage?.limit} free questions this month. Upgrade for unlimited legal research.</p>
+                <Button size="sm" onClick={() => setUpgradeOpen(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
+                  <Zap className="h-3.5 w-3.5 mr-1.5" /> Upgrade to Advocate
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSend} className="relative flex items-center max-w-3xl mx-auto">
+                <Input
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  disabled={isStreaming || !activeSessionId}
+                  className="w-full rounded-full border-slate-300 shadow-sm pr-11 py-5 pl-4 text-sm md:text-base"
+                  placeholder={activeSessionId ? "Ask a legal research question…" : "Start a session first"}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={isStreaming || !inputValue.trim() || !activeSessionId}
+                  className="absolute right-1.5 rounded-full h-8 w-8 md:h-9 md:w-9"
+                >
+                  <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                </Button>
+              </form>
+            )}
             <p className="text-center mt-2 text-xs text-slate-400">
               Always verify citations and rules before relying on them in court.
             </p>

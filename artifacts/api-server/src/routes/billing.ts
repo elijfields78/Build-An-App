@@ -7,7 +7,7 @@ import { logger } from "../lib/logger";
 
 const router = Router();
 
-// GET /billing/status — returns current user tier + subscription info
+// GET /billing/status — returns current user tier + subscription info + usage
 router.get("/billing/status", async (req, res) => {
   try {
     const { userId } = getAuth(req);
@@ -21,6 +21,8 @@ router.get("/billing/status", async (req, res) => {
       subscription = await billingStorage.getActiveSubscription(user.stripeCustomerId);
     }
 
+    const usage = tier === "free" ? await billingStorage.getMonthlyUsageSummary(userId) : null;
+
     return res.json({
       tier,
       stripeCustomerId: user?.stripeCustomerId ?? null,
@@ -32,6 +34,7 @@ router.get("/billing/status", async (req, res) => {
             currentPeriodEnd: subscription.current_period_end,
           }
         : null,
+      usage,
     });
   } catch (err) {
     logger.error({ err }, "Error fetching billing status");
@@ -58,6 +61,11 @@ router.post("/billing/checkout", async (req, res) => {
 
     const { priceId } = req.body as { priceId: string };
     if (!priceId) return res.status(400).json({ error: "priceId required" });
+
+    const allowedPriceIds = await billingStorage.getAllowedPriceIds();
+    if (!allowedPriceIds.includes(priceId)) {
+      return res.status(400).json({ error: "Invalid price ID" });
+    }
 
     const user = await billingStorage.getOrCreateUser(userId);
     const stripe = await getUncachableStripeClient();
