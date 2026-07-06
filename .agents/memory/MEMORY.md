@@ -1,2 +1,4 @@
 - [Pro Se Navigator architecture](pro-se-navigator.md) — key decisions: Clerk proxy, conversations table userId, SSE streaming pattern, non-blocking AI uploads.
 - [Clerk auth token injection](clerk-auth-token-injection.md) — API hooks return 401 in Replit preview because cookies aren't forwarded; fix with ClerkAuthTokenSync + setAuthTokenGetter.
+- [Stripe credential proxy shape](stripe-credential-shape.md) — Replit proxy returns `settings.secret` (not `secret_key`); auth header is `X-Replit-Token`
+- [stripe-replit-sync esbuild external](stripe-replit-sync-esbuild.md) — must be marked external in build.mjs; reads .sql migration files via __dirname at runtime, breaks when bundled
