@@ -95,6 +95,38 @@ router.get("/openai/conversations/:id", async (req, res) => {
   }
 });
 
+// Update conversation title
+router.patch("/openai/conversations/:id", async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const id = parseInt(req.params.id);
+    const { title } = req.body;
+    if (!title) return res.status(400).json({ error: "Title required" });
+
+    const [conv] = await db
+      .select()
+      .from(conversationsTable)
+      .where(eq(conversationsTable.id, id));
+
+    if (!conv || conv.userId !== userId) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    const [updated] = await db
+      .update(conversationsTable)
+      .set({ title })
+      .where(eq(conversationsTable.id, id))
+      .returning();
+
+    return res.json({ id: updated.id, title: updated.title, createdAt: updated.createdAt });
+  } catch (err) {
+    logger.error({ err }, "Error updating conversation");
+    return res.status(500).json({ error: "Failed to update conversation" });
+  }
+});
+
 // Delete conversation
 router.delete("/openai/conversations/:id", async (req, res) => {
   try {

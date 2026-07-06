@@ -47,6 +47,22 @@ export default function AiAssistant() {
     });
   };
 
+  const autoTitleConversation = async (convId: number, firstMessage: string) => {
+    // Generate a clean title from the first message (max 60 chars)
+    const raw = firstMessage.trim();
+    const title = raw.length > 60 ? raw.slice(0, 57).trimEnd() + "…" : raw;
+    try {
+      await fetch(`/api/openai/conversations/${convId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      qc.invalidateQueries({ queryKey: ["/api/openai/conversations"] });
+    } catch {
+      // non-critical, ignore
+    }
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || !activeConvId) return;
@@ -56,12 +72,16 @@ export default function AiAssistant() {
     setIsStreaming(true);
     setStreamedResponse("");
 
+    // Check if this is the first message in the conversation (so we can auto-title it)
+    const currentConv = conversations?.find(c => c.id === activeConvId);
+    const isFirstMessage = currentConv?.title === "New Conversation";
+
     // Optimistically update UI
     const oldConv = qc.getQueryData([`/api/openai/conversations/${activeConvId}`]) as any;
     if (oldConv) {
       qc.setQueryData([`/api/openai/conversations/${activeConvId}`], {
         ...oldConv,
-        messages: [...oldConv.messages, { id: Date.now(), role: 'user', content: message }]
+        messages: [...(oldConv.messages ?? []), { id: Date.now(), role: 'user', content: message }]
       });
     }
 
@@ -85,7 +105,12 @@ export default function AiAssistant() {
           setStreamedResponse(prev => prev + chunk);
         }
       }
-      
+
+      // Auto-title the conversation using the first message text
+      if (isFirstMessage) {
+        await autoTitleConversation(activeConvId, message);
+      }
+
       qc.invalidateQueries({ queryKey: [`/api/openai/conversations/${activeConvId}`] });
     } catch (err) {
       console.error(err);
