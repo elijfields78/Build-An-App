@@ -1,123 +1,223 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useGetDashboard } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, Scale, Mail, ShieldAlert, BookOpen, MessageSquare, Target } from "lucide-react";
-import { format } from "date-fns";
+import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, BookOpen, MessageSquare } from "lucide-react";
+import { format, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
 
+// ---------- Radial Case Strength Gauge ----------
+function RadialGauge({ percent }: { percent: number }) {
+  const r = 52;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (percent / 100) * circ;
+  const color = percent >= 80 ? "#D4A843" : percent >= 40 ? "hsl(239 84% 67%)" : "hsl(239 84% 67%)";
+  const [animated, setAnimated] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(percent), 100);
+    return () => clearTimeout(t);
+  }, [percent]);
+
+  const animOffset = circ - (animated / 100) * circ;
+
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: 128, height: 128 }}>
+      <svg width={128} height={128} viewBox="0 0 128 128" className="-rotate-90">
+        <circle cx={64} cy={64} r={r} fill="none" stroke="hsl(228 40% 12%)" strokeWidth={10} />
+        <circle
+          cx={64}
+          cy={64}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={10}
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={animOffset}
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke 0.4s" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-mono font-bold text-2xl leading-none" style={{ color }}>{percent}%</span>
+        <span className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">Ready</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Countdown Timer ----------
+function DeadlineCountdown({ task }: { task?: { title: string; dueDate?: string | null } }) {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!task || !task.dueDate) {
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-muted-foreground">No deadlines set</p>
+        <p className="font-mono text-xs text-muted-foreground">Add tasks with due dates</p>
+      </div>
+    );
+  }
+
+  const due = new Date(task.dueDate);
+  const overdue = isPast(due);
+  const days = Math.abs(differenceInDays(due, now));
+  const hours = Math.abs(differenceInHours(due, now)) % 24;
+  const mins = Math.abs(differenceInMinutes(due, now)) % 60;
+  const urgent = days < 3;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm font-semibold text-foreground line-clamp-2">{task.title}</p>
+      <div className={`flex items-end gap-1 font-mono font-bold tracking-tighter ${overdue ? "text-destructive" : urgent ? "text-[#D4A843]" : "text-primary"}`}>
+        <span className="text-4xl leading-none">{String(days).padStart(2, "0")}</span>
+        <span className="text-base pb-1">d</span>
+        <span className="text-2xl leading-none">{String(hours).padStart(2, "0")}</span>
+        <span className="text-sm pb-0.5">h</span>
+        <span className="text-xl leading-none">{String(mins).padStart(2, "0")}</span>
+        <span className="text-xs pb-0.5">m</span>
+      </div>
+      <div className={`text-[10px] font-mono uppercase tracking-widest ${overdue ? "text-destructive font-bold" : "text-muted-foreground"}`}>
+        {overdue ? "OVERDUE" : "remaining"} · Due {format(due, "MMM dd, yyyy")}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Dashboard ----------
 export default function Dashboard() {
   const { data, isLoading, error } = useGetDashboard();
+
+  const readinessPct = data?.totalCases
+    ? Math.min(100, Math.round((data.activeCases / data.totalCases) * 100))
+    : 0;
+
+  const nextDeadlineTask = data?.upcomingTasks?.find((t) => t.dueDate) ?? data?.upcomingTasks?.[0];
 
   return (
     <AppLayout title="Command Center">
       <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
-        
-        {/* Top Section: Readiness & Deadlines */}
+
+        {/* Top Section: Readiness Gauge + Next Deadline */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Filing Readiness — radial gauge */}
           <Card className="lg:col-span-2 bg-card overflow-hidden relative">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              <Target className="w-32 h-32" />
-            </div>
             <CardHeader className="pb-2">
               <CardTitle className="text-xl font-serif font-bold">Filing Readiness</CardTitle>
-              <CardDescription>Overall progress across active cases</CardDescription>
+              <CardDescription>Active case portfolio strength</CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-16 w-full" /> : (
-                <div className="flex items-center gap-6">
-                  <div className="text-5xl font-mono font-bold text-primary tracking-tighter">
-                    {data?.totalCases ? Math.round((data.activeCases / data.totalCases) * 100) : 0}%
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Active Portfolio</p>
-                    <p className="text-base text-foreground font-mono">{data?.activeCases || 0} active / {data?.totalCases || 0} total cases</p>
+              {isLoading ? (
+                <Skeleton className="h-32 w-full" />
+              ) : (
+                <div className="flex items-center gap-8">
+                  <RadialGauge percent={readinessPct} />
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Active Portfolio</p>
+                      <p className="font-mono text-lg font-bold">{data?.activeCases ?? 0} <span className="text-muted-foreground font-normal text-sm">active</span> / {data?.totalCases ?? 0} <span className="text-muted-foreground font-normal text-sm">total</span></p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Evidence Gathered</p>
+                      <p className="font-mono text-lg font-bold">{data?.totalEvidence ?? 0} <span className="text-muted-foreground font-normal text-sm">items</span></p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Open Deadlines</p>
+                      <p className="font-mono text-lg font-bold">{data?.upcomingDeadlines ?? 0} <span className="text-muted-foreground font-normal text-sm">pending</span></p>
+                    </div>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <Card className="bg-destructive/10 border-destructive/20 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-6 opacity-10">
-              <Calendar className="w-24 h-24 text-destructive" />
+          {/* Next Deadline — live countdown */}
+          <Card className="relative overflow-hidden border-destructive/20 bg-destructive/5 dark:bg-destructive/10">
+            <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+              <Calendar className="w-24 h-24" />
             </div>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-serif font-bold text-destructive">Next Deadline</CardTitle>
+              <CardTitle className="text-xl font-serif font-bold flex items-center gap-2">
+                <Clock className="h-5 w-5 text-[#D4A843]" />
+                Next Deadline
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-16 w-32" /> : (
-                <div className="flex flex-col">
-                  <div className="text-4xl font-mono font-bold text-destructive tracking-tighter">
-                    {data?.upcomingDeadlines || 0}
-                  </div>
-                  <p className="text-sm font-medium text-destructive/80 mt-1 uppercase tracking-wider">Pending items</p>
-                </div>
+              {isLoading ? (
+                <Skeleton className="h-20 w-full" />
+              ) : (
+                <DeadlineCountdown task={nextDeadlineTask} />
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Bento Grid Modules */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex items-center justify-between mb-2 mt-4">
-            <h3 className="text-xl font-bold font-serif tracking-tight">Mission Control</h3>
+        {/* Mission Control Bento */}
+        <div>
+          <h3 className="text-xl font-bold font-serif tracking-tight mb-4">Mission Control</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="/cases/new">
+              <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full border-dashed bg-accent/30 group">
+                <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full gap-3">
+                  <div className="p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <Plus className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="font-bold font-serif text-lg">New Case</div>
+                  <div className="text-xs text-muted-foreground">Start a new legal action</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/research">
+              <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full group">
+                <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                  <div>
+                    <div className="font-bold font-serif text-lg">Legal Research</div>
+                    <div className="text-xs text-muted-foreground mt-1">Search case law and statutes</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/assistant">
+              <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full group">
+                <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
+                  <MessageSquare className="h-6 w-6 text-[#D4A843]" />
+                  <div>
+                    <div className="font-bold font-serif text-lg">AI Assistant</div>
+                    <div className="text-xs text-muted-foreground mt-1">Get strategic legal guidance</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Card className="h-full">
+              <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
+                <FileText className="h-6 w-6 text-emerald-500" />
+                <div>
+                  <div className="font-bold font-serif text-lg">Total Evidence</div>
+                  <div className="text-2xl font-mono mt-1">{data?.totalEvidence ?? 0}</div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          <Link href="/cases/new">
-            <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full border-dashed bg-accent/30 group">
-              <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full gap-3">
-                <div className="p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                  <Plus className="h-6 w-6 text-primary" />
-                </div>
-                <div className="font-bold font-serif text-lg">New Case</div>
-                <div className="text-xs text-muted-foreground">Start a new legal action</div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/research">
-            <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full group">
-              <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <div>
-                  <div className="font-bold font-serif text-lg">Legal Research</div>
-                  <div className="text-xs text-muted-foreground mt-1">Search case law & statutes</div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/assistant">
-            <Card className="hover:border-primary transition-all hover:-translate-y-0.5 cursor-pointer h-full group">
-              <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
-                <MessageSquare className="h-6 w-6 text-[#D4A843]" />
-                <div>
-                  <div className="font-bold font-serif text-lg">AI Assistant</div>
-                  <div className="text-xs text-muted-foreground mt-1">Get strategic guidance</div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Card className="h-full">
-            <CardContent className="flex flex-col items-start p-6 h-full justify-between gap-4">
-              <FileText className="h-6 w-6 text-emerald-500" />
-              <div>
-                <div className="font-bold font-serif text-lg">Total Evidence</div>
-                <div className="text-2xl font-mono mt-1">{data?.totalEvidence || 0}</div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
+        {/* Active Operations + Pending Actions */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Recent Cases Strip */}
+
+          {/* Recent Cases */}
           <div className="xl:col-span-2 space-y-4">
             <h3 className="text-xl font-bold font-serif tracking-tight">Active Operations</h3>
-            
             {isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-32 w-full" />
@@ -150,12 +250,12 @@ export default function Dashboard() {
                             <Link href={`/cases/${c.id}`} className="hover:text-primary transition-colors">{c.title}</Link>
                           </CardTitle>
                           <CardDescription className="capitalize mt-1 font-mono text-xs">
-                            <span className="text-primary">{c.status}</span> • {c.caseType}
+                            <span className="text-primary">{c.status}</span> · {c.caseType}
                           </CardDescription>
                         </div>
                         <div className="text-right text-xs font-mono text-muted-foreground space-y-1">
                           {c.caseNumber && <div>#{c.caseNumber}</div>}
-                          <div>{c.court || 'Court TBA'}</div>
+                          <div>{c.court ?? "Court TBA"}</div>
                         </div>
                       </div>
                     </CardHeader>
@@ -171,16 +271,16 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 flex flex-col justify-center">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mb-1">Target</span>
-                          <span className="font-mono text-sm truncate">{c.opposingParty || 'TBA'}</span>
+                          <span className="font-mono text-sm truncate">{c.opposingParty ?? "TBA"}</span>
                         </div>
                       </div>
                     </CardContent>
                     <CardFooter className="bg-accent/30 py-2.5 px-4 flex justify-between border-t border-border/50">
                       <span className="text-[10px] font-mono text-muted-foreground uppercase">
-                        Last Update: {format(new Date(c.updatedAt), 'MMM dd, yyyy')}
+                        Updated: {format(new Date(c.updatedAt), "MMM dd, yyyy")}
                       </span>
                       <Button variant="ghost" size="sm" asChild className="h-7 text-xs font-bold uppercase tracking-wider hover:bg-primary/20 hover:text-primary group-hover:text-primary">
-                        <Link href={`/cases/${c.id}`}>Open →</Link>
+                        <Link href={`/cases/${c.id}`}>Open</Link>
                       </Button>
                     </CardFooter>
                   </Card>
@@ -189,13 +289,12 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Right Sidebar: Upcoming Tasks */}
+          {/* Pending Actions */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold font-serif tracking-tight">Pending Actions</h3>
-            
             {isLoading ? (
               <Skeleton className="h-64 w-full" />
-            ) : data?.upcomingTasks?.length === 0 ? (
+            ) : !data?.upcomingTasks?.length ? (
               <Card className="bg-transparent border-dashed">
                 <CardContent className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
                   <CheckSquareIcon className="h-8 w-8 mb-3 opacity-50" />
@@ -205,28 +304,26 @@ export default function Dashboard() {
             ) : (
               <Card className="overflow-hidden">
                 <div className="divide-y divide-border/50">
-                  {data?.upcomingTasks.map((task) => {
-                    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
+                  {data.upcomingTasks.map((task) => {
+                    const isOverdue = !!task.dueDate && new Date(task.dueDate) < new Date();
                     return (
                       <div key={task.id} className="p-4 hover:bg-accent/50 transition-colors">
                         <div className="flex items-start gap-3">
-                          <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${isOverdue ? 'bg-destructive' : 'bg-primary animate-pulse'}`} />
+                          <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${isOverdue ? "bg-destructive" : "bg-primary animate-pulse"}`} />
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm line-clamp-2">{task.title}</p>
                             <div className="flex flex-wrap items-center gap-2 mt-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                               {task.dueDate && (
-                                <span className={`flex items-center gap-1 ${isOverdue ? 'text-destructive font-bold' : ''}`}>
+                                <span className={`flex items-center gap-1 ${isOverdue ? "text-destructive font-bold" : ""}`}>
                                   <Clock className="h-3 w-3" />
-                                  {format(new Date(task.dueDate), 'MMM dd')}
+                                  {format(new Date(task.dueDate), "MMM dd")}
                                 </span>
                               )}
-                              <span className="px-1.5 py-0.5 rounded border bg-background">
-                                {task.phase}
-                              </span>
+                              <span className="px-1.5 py-0.5 rounded border bg-background">{task.phase}</span>
                             </div>
                           </div>
                           <Button variant="outline" size="icon" asChild className="shrink-0 h-8 w-8">
-                             <Link href={`/cases/${task.caseId}/tasks`}>→</Link>
+                            <Link href={`/cases/${task.caseId}/tasks`}>→</Link>
                           </Button>
                         </div>
                       </div>
@@ -235,8 +332,7 @@ export default function Dashboard() {
                 </div>
               </Card>
             )}
-            
-            {/* Intel Quote */}
+
             <Card className="bg-sidebar border-sidebar-border mt-6">
               <CardContent className="p-6 text-center text-sidebar-foreground">
                 <p className="font-serif italic opacity-80 text-sm">"Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat."</p>
