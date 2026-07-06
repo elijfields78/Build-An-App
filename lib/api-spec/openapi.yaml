@@ -1,22 +1,43 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Pro Se Litigation Navigator API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: cases
+    description: Case management
+  - name: story
+    description: Case story/intake
+  - name: evidence
+    description: Evidence management
+  - name: jurisdiction
+    description: Jurisdiction analysis
+  - name: ifp
+    description: In forma pauperis (fee waiver)
+  - name: complaint
+    description: Verified complaint generation
+  - name: court-documents
+    description: Received court documents
+  - name: tasks
+    description: Filing checklist and tasks
+  - name: research
+    description: Legal research sessions
+  - name: dashboard
+    description: Dashboard summary
+  - name: openai
+    description: OpenAI AI chat operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +45,722 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Dashboard ──────────────────────────────────────────────
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  # ── Cases ──────────────────────────────────────────────────
+  /cases:
+    get:
+      operationId: listCases
+      tags: [cases]
+      summary: List all cases for the user
+      responses:
+        "200":
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Case"
+    post:
+      operationId: createCase
+      tags: [cases]
+      summary: Create a new case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseInput"
+      responses:
+        "201":
+          description: Created case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Case"
+
+  /cases/{id}:
+    get:
+      operationId: getCase
+      tags: [cases]
+      summary: Get a case by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateCase
+      tags: [cases]
+      summary: Update a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseUpdate"
+      responses:
+        "200":
+          description: Updated case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Case"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteCase
+      tags: [cases]
+      summary: Delete a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  # ── Case Story ─────────────────────────────────────────────
+  /cases/{id}/story:
+    get:
+      operationId: getCaseStory
+      tags: [story]
+      summary: Get the intake story for a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStory"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: saveCaseStory
+      tags: [story]
+      summary: Save or update the intake story
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseStoryInput"
+      responses:
+        "200":
+          description: Saved story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStory"
+
+  # ── Evidence ───────────────────────────────────────────────
+  /cases/{id}/evidence:
+    get:
+      operationId: listEvidence
+      tags: [evidence]
+      summary: List all evidence for a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Evidence items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EvidenceItem"
+
+  /cases/{id}/evidence/{eid}:
+    get:
+      operationId: getEvidenceItem
+      tags: [evidence]
+      summary: Get a single evidence item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Evidence item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceItem"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteEvidenceItem
+      tags: [evidence]
+      summary: Delete an evidence item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Court Documents ────────────────────────────────────────
+  /cases/{id}/court-documents:
+    get:
+      operationId: listCourtDocuments
+      tags: [court-documents]
+      summary: List received court documents for a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Court documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourtDocument"
+
+  /cases/{id}/court-documents/{did}:
+    get:
+      operationId: getCourtDocument
+      tags: [court-documents]
+      summary: Get a court document with AI analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Court document with analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourtDocument"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteCourtDocument
+      tags: [court-documents]
+      summary: Delete a court document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Jurisdiction ───────────────────────────────────────────
+  /cases/{id}/jurisdiction:
+    get:
+      operationId: getJurisdictionAnalysis
+      tags: [jurisdiction]
+      summary: Get jurisdiction analysis for a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Jurisdiction analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JurisdictionAnalysis"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: saveJurisdictionAnalysis
+      tags: [jurisdiction]
+      summary: Save jurisdiction answers and trigger analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JurisdictionInput"
+      responses:
+        "200":
+          description: Saved and analyzed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JurisdictionAnalysis"
+
+  # ── IFP Application ────────────────────────────────────────
+  /cases/{id}/ifp:
+    get:
+      operationId: getIfpApplication
+      tags: [ifp]
+      summary: Get IFP (in forma pauperis) application data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: IFP application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IfpApplication"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: saveIfpApplication
+      tags: [ifp]
+      summary: Save IFP application data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IfpApplicationInput"
+      responses:
+        "200":
+          description: Saved IFP application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IfpApplication"
+
+  # ── Complaint ──────────────────────────────────────────────
+  /cases/{id}/complaint:
+    get:
+      operationId: getComplaint
+      tags: [complaint]
+      summary: Get the generated verified complaint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint draft
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /cases/{id}/complaint/generate:
+    post:
+      operationId: generateComplaint
+      tags: [complaint]
+      summary: Generate a verified complaint from case data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: SSE stream of generated complaint text
+          content:
+            text/event-stream: {}
+
+  # ── Tasks / Checklist ─────────────────────────────────────
+  /cases/{id}/tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List filing checklist tasks for a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseTask"
+
+  /cases/{id}/tasks/{tid}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task (mark complete, set deadline, etc.)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseTaskUpdate"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseTask"
+
+  # ── Legal Research ─────────────────────────────────────────
+  /research:
+    get:
+      operationId: listResearchSessions
+      tags: [research]
+      summary: List research sessions
+      responses:
+        "200":
+          description: Research sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResearchSession"
+    post:
+      operationId: createResearchSession
+      tags: [research]
+      summary: Create a new research session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResearchSessionInput"
+      responses:
+        "201":
+          description: Created research session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchSession"
+
+  /research/{id}:
+    get:
+      operationId: getResearchSession
+      tags: [research]
+      summary: Get a research session with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Research session with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchSessionWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteResearchSession
+      tags: [research]
+      summary: Delete a research session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /research/{id}/ask:
+    post:
+      operationId: askResearch
+      tags: [research]
+      summary: Ask a legal research question (streaming response)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResearchQuestion"
+      responses:
+        "200":
+          description: SSE stream of research answer
+          content:
+            text/event-stream: {}
+
+  # ── OpenAI Conversations ───────────────────────────────────
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all AI assistant conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new AI assistant conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a message to the AI assistant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant response
+          content:
+            text/event-stream: {}
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +771,701 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalCases:
+          type: integer
+        activeCases:
+          type: integer
+        upcomingDeadlines:
+          type: integer
+        totalEvidence:
+          type: integer
+        recentCases:
+          type: array
+          items:
+            $ref: "#/components/schemas/Case"
+        upcomingTasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/CaseTask"
+      required:
+        - totalCases
+        - activeCases
+        - upcomingDeadlines
+        - totalEvidence
+        - recentCases
+        - upcomingTasks
+
+    Case:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        caseType:
+          type: string
+          description: "plaintiff | defendant | research"
+        status:
+          type: string
+          description: "intake | active | settled | closed"
+        court:
+          type: ["string", "null"]
+        caseNumber:
+          type: ["string", "null"]
+        opposingParty:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        storyComplete:
+          type: boolean
+        jurisdictionComplete:
+          type: boolean
+        ifpComplete:
+          type: boolean
+        evidenceCount:
+          type: integer
+        taskCount:
+          type: integer
+        completedTaskCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - caseType
+        - status
+        - storyComplete
+        - jurisdictionComplete
+        - ifpComplete
+        - evidenceCount
+        - taskCount
+        - completedTaskCount
+        - createdAt
+        - updatedAt
+
+    CaseDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        caseType:
+          type: string
+        status:
+          type: string
+        court:
+          type: ["string", "null"]
+        caseNumber:
+          type: ["string", "null"]
+        opposingParty:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        storyComplete:
+          type: boolean
+        jurisdictionComplete:
+          type: boolean
+        ifpComplete:
+          type: boolean
+        evidenceCount:
+          type: integer
+        taskCount:
+          type: integer
+        completedTaskCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        story:
+          oneOf:
+            - $ref: "#/components/schemas/CaseStory"
+            - type: "null"
+        recentEvidence:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceItem"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/CaseTask"
+      required:
+        - id
+        - title
+        - caseType
+        - status
+        - storyComplete
+        - jurisdictionComplete
+        - ifpComplete
+        - evidenceCount
+        - taskCount
+        - completedTaskCount
+        - createdAt
+        - updatedAt
+        - recentEvidence
+        - tasks
+
+    CaseInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        caseType:
+          type: string
+          enum: [plaintiff, defendant, research]
+        court:
+          type: string
+        opposingParty:
+          type: string
+        summary:
+          type: string
+      required:
+        - title
+        - caseType
+
+    CaseUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        caseType:
+          type: string
+        status:
+          type: string
+        court:
+          type: string
+        caseNumber:
+          type: string
+        opposingParty:
+          type: string
+        summary:
+          type: string
+
+    CaseStory:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        whoHarmedYou:
+          type: ["string", "null"]
+        whatHappened:
+          type: ["string", "null"]
+        whenHappened:
+          type: ["string", "null"]
+        whereHappened:
+          type: ["string", "null"]
+        evidenceDescription:
+          type: ["string", "null"]
+        rightsViolated:
+          type: ["string", "null"]
+        damagesSuffered:
+          type: ["string", "null"]
+        desiredOutcome:
+          type: ["string", "null"]
+        remedySought:
+          type: ["string", "null"]
+        additionalContext:
+          type: ["string", "null"]
+        aiSummary:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - updatedAt
+
+    CaseStoryInput:
+      type: object
+      properties:
+        whoHarmedYou:
+          type: string
+        whatHappened:
+          type: string
+        whenHappened:
+          type: string
+        whereHappened:
+          type: string
+        evidenceDescription:
+          type: string
+        rightsViolated:
+          type: string
+        damagesSuffered:
+          type: string
+        desiredOutcome:
+          type: string
+        remedySought:
+          type: string
+        additionalContext:
+          type: string
+
+    EvidenceItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        fileName:
+          type: string
+        fileType:
+          type: string
+        fileSize:
+          type: integer
+        filePath:
+          type: string
+        description:
+          type: ["string", "null"]
+        aiSummary:
+          type: ["string", "null"]
+        extractedDates:
+          type: ["string", "null"]
+        extractedNames:
+          type: ["string", "null"]
+        keyFacts:
+          type: ["string", "null"]
+        uploadedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - fileName
+        - fileType
+        - fileSize
+        - filePath
+        - uploadedAt
+
+    CourtDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        fileName:
+          type: string
+        fileType:
+          type: string
+        filePath:
+          type: string
+        documentType:
+          type: ["string", "null"]
+          description: "e.g. summons, complaint, motion, order"
+        plainEnglishSummary:
+          type: ["string", "null"]
+        deadlinesIdentified:
+          type: ["string", "null"]
+        whatItMeans:
+          type: ["string", "null"]
+        whatToDoNext:
+          type: ["string", "null"]
+        proceduralWarnings:
+          type: ["string", "null"]
+        draftResponse:
+          type: ["string", "null"]
+        uploadedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - fileName
+        - fileType
+        - filePath
+        - uploadedAt
+
+    JurisdictionAnalysis:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        federalOrState:
+          type: ["string", "null"]
+        subjectMatterJurisdiction:
+          type: ["string", "null"]
+        federalQuestion:
+          type: ["string", "null"]
+        diversityJurisdiction:
+          type: ["string", "null"]
+        personalJurisdiction:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        statuteOfLimitations:
+          type: ["string", "null"]
+        properDefendants:
+          type: ["string", "null"]
+        governmentDefendantRules:
+          type: ["string", "null"]
+        administrativeExhaustion:
+          type: ["string", "null"]
+        aiAnalysis:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - updatedAt
+
+    JurisdictionInput:
+      type: object
+      properties:
+        federalOrState:
+          type: string
+        subjectMatterJurisdiction:
+          type: string
+        federalQuestion:
+          type: string
+        diversityJurisdiction:
+          type: string
+        personalJurisdiction:
+          type: string
+        venue:
+          type: string
+        statuteOfLimitations:
+          type: string
+        properDefendants:
+          type: string
+        governmentDefendantRules:
+          type: string
+        administrativeExhaustion:
+          type: string
+
+    IfpApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        formType:
+          type: ["string", "null"]
+          description: "AO239 | AO240"
+        monthlyIncome:
+          type: ["number", "null"]
+        monthlyExpenses:
+          type: ["number", "null"]
+        assets:
+          type: ["string", "null"]
+        dependents:
+          type: ["integer", "null"]
+        employed:
+          type: ["boolean", "null"]
+        employer:
+          type: ["string", "null"]
+        receivingBenefits:
+          type: ["boolean", "null"]
+        benefitsDescription:
+          type: ["string", "null"]
+        totalDebts:
+          type: ["number", "null"]
+        hardshipStatement:
+          type: ["string", "null"]
+        generatedText:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - updatedAt
+
+    IfpApplicationInput:
+      type: object
+      properties:
+        formType:
+          type: string
+          enum: [AO239, AO240]
+        monthlyIncome:
+          type: number
+        monthlyExpenses:
+          type: number
+        assets:
+          type: string
+        dependents:
+          type: integer
+        employed:
+          type: boolean
+        employer:
+          type: string
+        receivingBenefits:
+          type: boolean
+        benefitsDescription:
+          type: string
+        totalDebts:
+          type: number
+        hardshipStatement:
+          type: string
+
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        complaintText:
+          type: ["string", "null"]
+        caption:
+          type: ["string", "null"]
+        juryDemand:
+          type: boolean
+        status:
+          type: string
+          description: "draft | review | final"
+        generatedAt:
+          type: ["string", "null"]
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - juryDemand
+        - status
+        - updatedAt
+
+    CaseTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        phase:
+          type: string
+          description: "pre-filing | filing | service | response | discovery | motions | trial | appeal"
+        completed:
+          type: boolean
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - caseId
+        - title
+        - phase
+        - completed
+        - sortOrder
+        - createdAt
+
+    CaseTaskUpdate:
+      type: object
+      properties:
+        completed:
+          type: boolean
+        dueDate:
+          type: string
+          format: date-time
+        title:
+          type: string
+        description:
+          type: string
+
+    ResearchSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        messageCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - messageCount
+        - createdAt
+        - updatedAt
+
+    ResearchSessionWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResearchMessage"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - messages
+        - createdAt
+        - updatedAt
+
+    ResearchMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - sessionId
+        - role
+        - content
+        - createdAt
+
+    ResearchSessionInput:
+      type: object
+      properties:
+        title:
+          type: string
+        caseId:
+          type: integer
+      required:
+        - title
+
+    ResearchQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+      required:
+        - question
+
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

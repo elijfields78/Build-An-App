@@ -1,0 +1,1 @@
+- [Pro Se Navigator architecture](pro-se-navigator.md) — key decisions: Clerk proxy, conversations table userId, SSE streaming pattern, non-blocking AI uploads.
