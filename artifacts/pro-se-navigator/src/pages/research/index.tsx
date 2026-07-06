@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
+import { MicButton } from "@/components/ui/mic-button";
 
 export default function LegalResearch() {
   const { getToken } = useAuth();
@@ -345,17 +346,23 @@ export default function LegalResearch() {
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
                   disabled={isStreaming || !activeSessionId}
-                  className="w-full h-14 rounded-full border-border/50 bg-background shadow-sm pr-14 pl-6 text-base focus-visible:ring-primary/50 transition-shadow focus-visible:shadow-lg focus-visible:shadow-primary/10"
+                  className="w-full h-14 rounded-full border-border/50 bg-background shadow-sm pr-28 pl-6 text-base focus-visible:ring-primary/50 transition-shadow focus-visible:shadow-lg focus-visible:shadow-primary/10"
                   placeholder={activeSessionId ? "Ask a legal research question…" : "Start a session first"}
                 />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={isStreaming || !inputValue.trim() || !activeSessionId}
-                  className="absolute right-2 rounded-full h-10 w-10 shadow-md"
-                >
-                  <Send className="h-4 w-4 ml-0.5" />
-                </Button>
+                <div className="absolute right-2 flex items-center gap-1">
+                  <MicButton
+                    onTranscript={(text) => setInputValue(prev => prev ? `${prev} ${text}` : text)}
+                    disabled={isStreaming || !activeSessionId}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={isStreaming || !inputValue.trim() || !activeSessionId}
+                    className="rounded-full h-10 w-10 shadow-md"
+                  >
+                    <Send className="h-4 w-4 ml-0.5" />
+                  </Button>
+                </div>
               </form>
             )}
             <p className="text-center mt-3 text-[10px] uppercase tracking-widest font-bold text-muted-foreground">

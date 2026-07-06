@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
+import { MicButton } from "@/components/ui/mic-button";
 
 export default function AiAssistant() {
   const { getToken } = useAuth();
@@ -298,17 +299,24 @@ export default function AiAssistant() {
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 disabled={isStreaming || !activeConvId}
-                className="w-full h-14 rounded-full border-border/50 bg-background shadow-sm pr-14 pl-6 text-base focus-visible:ring-[#D4A843]/50 transition-shadow focus-visible:shadow-lg focus-visible:shadow-[#D4A843]/10"
+                className="w-full h-14 rounded-full border-border/50 bg-background shadow-sm pr-28 pl-6 text-base focus-visible:ring-[#D4A843]/50 transition-shadow focus-visible:shadow-lg focus-visible:shadow-[#D4A843]/10"
                 placeholder={activeConvId ? "Message AI Assistant…" : "Start a conversation first"}
               />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={isStreaming || !inputValue.trim() || !activeConvId}
-                className="absolute right-2 rounded-full h-10 w-10 shadow-md bg-[#D4A843] hover:bg-[#b58f38] text-black disabled:bg-[#D4A843]/50"
-              >
-                <Send className="h-4 w-4 ml-0.5" />
-              </Button>
+              <div className="absolute right-2 flex items-center gap-1">
+                <MicButton
+                  onTranscript={(text) => setInputValue(prev => prev ? `${prev} ${text}` : text)}
+                  disabled={isStreaming || !activeConvId}
+                  accentColor="#D4A843"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={isStreaming || !inputValue.trim() || !activeConvId}
+                  className="rounded-full h-10 w-10 shadow-md bg-[#D4A843] hover:bg-[#b58f38] text-black disabled:bg-[#D4A843]/50"
+                >
+                  <Send className="h-4 w-4 ml-0.5" />
+                </Button>
+              </div>
             </form>
           </div>
         </div>
