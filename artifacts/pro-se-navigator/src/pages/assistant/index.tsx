@@ -101,16 +101,7 @@ export default function AiAssistant() {
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.content) setStreamedResponse(prev => prev + data.content);
-              } catch { /* ignore */ }
-            }
-          }
+          setStreamedResponse(prev => prev + decoder.decode(value, { stream: true }));
         }
       }
 
@@ -179,7 +170,7 @@ export default function AiAssistant() {
 
   return (
     <AppLayout title="AI Assistant">
-      <div className="flex h-[calc(100dvh-8rem)] md:h-[calc(100dvh-7rem)] overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
 
         {/* Mobile overlay backdrop */}
         {showSidebar && (

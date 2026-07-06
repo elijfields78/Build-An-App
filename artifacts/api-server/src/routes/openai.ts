@@ -213,9 +213,10 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
       .where(eq(messagesTable.conversationId, id))
       .orderBy(messagesTable.createdAt);
 
-    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
 
     const systemPrompt = `You are a knowledgeable legal assistant helping a pro se litigant (a person representing themselves in court) understand their legal situation.
 
@@ -243,7 +244,7 @@ Always remind users that you provide legal INFORMATION, not legal ADVICE, and th
       const text = chunk.choices[0]?.delta?.content;
       if (text) {
         fullResponse += text;
-        res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        res.write(text);
       }
     }
 
@@ -254,7 +255,6 @@ Always remind users that you provide legal INFORMATION, not legal ADVICE, and th
       content: fullResponse,
     });
 
-    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
     return;
   } catch (err) {
@@ -262,7 +262,6 @@ Always remind users that you provide legal INFORMATION, not legal ADVICE, and th
     if (!res.headersSent) {
       return res.status(500).json({ error: "Failed to send message" });
     }
-    res.write(`data: ${JSON.stringify({ error: "Stream error" })}\n\n`);
     res.end();
     return;
   }

@@ -150,7 +150,7 @@ export default function LegalResearch() {
 
   return (
     <AppLayout title="Legal Research">
-      <div className="flex h-[calc(100dvh-8rem)] md:h-[calc(100dvh-7rem)] overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
 
         {/* Mobile overlay */}
         {showSidebar && (

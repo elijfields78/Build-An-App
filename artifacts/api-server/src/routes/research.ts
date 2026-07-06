@@ -150,9 +150,10 @@ router.post("/research/:id/ask", async (req, res) => {
       .where(eq(researchMessagesTable.sessionId, id))
       .orderBy(researchMessagesTable.createdAt);
 
-    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
 
     const systemPrompt = `You are an expert legal research assistant helping a pro se litigant (someone representing themselves in court). You have deep knowledge of federal and state civil procedure, constitutional law, torts, contracts, civil rights statutes (42 U.S.C. § 1983, Title VII, ADA, etc.), and case law.
 
@@ -181,7 +182,7 @@ Be thorough, cite sources, and help the user build a strong, factually grounded 
       const text = chunk.choices[0]?.delta?.content;
       if (text) {
         fullResponse += text;
-        res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        res.write(text);
       }
     }
 
@@ -198,7 +199,6 @@ Be thorough, cite sources, and help the user build a strong, factually grounded 
       .set({ updatedAt: new Date() })
       .where(eq(researchSessionsTable.id, id));
 
-    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
     return;
   } catch (err) {
@@ -206,7 +206,6 @@ Be thorough, cite sources, and help the user build a strong, factually grounded 
     if (!res.headersSent) {
       return res.status(500).json({ error: "Failed to process question" });
     }
-    res.write(`data: ${JSON.stringify({ error: "Stream error" })}\n\n`);
     res.end();
     return;
   }
