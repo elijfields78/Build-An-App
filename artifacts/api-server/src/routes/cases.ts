@@ -629,6 +629,65 @@ router.get("/cases/:id/jurisdiction", async (req, res) => {
   }
 });
 
+router.get("/cases/:id/jurisdiction/suggestions", async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const caseId = parseInt(req.params.id);
+    const c = await getOwnedCase(userId, caseId);
+    if (!c) return res.status(404).json({ error: "Case not found" });
+
+    const [story] = await db.select().from(caseStoriesTable).where(eq(caseStoriesTable.caseId, caseId));
+    if (!story || (!story.whatHappened && !story.whoHarmedYou)) {
+      return res.json({ storyFound: false });
+    }
+
+    const storyContext = [
+      `Case type: ${c.caseType === "plaintiff" ? "Plaintiff (filing a lawsuit)" : "Defendant (defending a lawsuit)"}`,
+      story.whoHarmedYou && `Who harmed you / opposing party: ${story.whoHarmedYou}`,
+      story.whatHappened && `What happened: ${story.whatHappened}`,
+      story.whenHappened && `When it happened: ${story.whenHappened}`,
+      story.whereHappened && `Where it happened: ${story.whereHappened}`,
+      story.rightsViolated && `Rights or laws violated: ${story.rightsViolated}`,
+      story.damagesSuffered && `Damages suffered: ${story.damagesSuffered}`,
+      story.remedySought && `Relief/remedy sought: ${story.remedySought}`,
+      story.additionalContext && `Additional context: ${story.additionalContext}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.4",
+      max_completion_tokens: 1024,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an experienced civil litigation attorney advising a pro se litigant. Based on their case story, generate specific, actionable jurisdiction suggestions for each field in their legal complaint. Be specific — cite statutes, rules, and legal standards where applicable. Return only valid JSON, no markdown fences.",
+        },
+        {
+          role: "user",
+          content: `Case story:\n${storyContext}\n\nGenerate jurisdiction suggestions as JSON with exactly this shape:\n{\n  "storyFound": true,\n  "federalOrState": {\n    "recommendation": "federal" or "state" or "unsure",\n    "reason": "1-2 sentence explanation citing specific basis like 28 U.S.C. § 1331 or 28 U.S.C. § 1332"\n  },\n  "subjectMatterBasis": [\n    "Specific suggestion 1 (e.g., Federal Question - 42 U.S.C. § 1983: Civil rights violation under color of state law)",\n    "Specific suggestion 2",\n    "Specific suggestion 3 if applicable"\n  ],\n  "venue": [\n    "Specific venue basis 1 (e.g., The district where the events occurred)",\n    "Specific venue basis 2 if applicable"\n  ],\n  "statuteOfLimitations": [\n    "Specific limitation period with start date (e.g., 2 years from date of civil rights violation under § 1983)"\n  ]\n}`,
+        },
+      ],
+    });
+
+    const text = completion.choices[0]?.message?.content || "{}";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    try {
+      const parsed = JSON.parse(cleaned);
+      return res.json(parsed);
+    } catch {
+      logger.error({ text }, "Failed to parse jurisdiction suggestions JSON");
+      return res.json({ storyFound: false });
+    }
+  } catch (err) {
+    logger.error({ err }, "Error generating jurisdiction suggestions");
+    return res.status(500).json({ error: "Failed to generate suggestions" });
+  }
+});
+
 router.put("/cases/:id/jurisdiction", async (req, res) => {
   try {
     const { userId } = getAuth(req);
