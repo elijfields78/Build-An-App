@@ -1,0 +1,316 @@
+Perplexity-style means: real-time research, cited answers, deep research, uploaded-document review, follow-up threads, and an assistant-like workflow, similar to Perplexity/Comet’s AI assistant and research experience.   Federal court forms should include AO 239/AO 240 fee-waiver forms, AO 440 summons, JS 44 civil cover sheet, and Pro Se civil complaint/answer forms.  
+
+Build a full-stack Replit web app called “Pro Se Litigation Navigator.”
+
+Purpose:
+Create an AI-powered litigation assistant for ordinary people representing themselves in civil lawsuits. The app must help users understand, organize, draft, and manage pro se litigation, whether they are suing someone or defending themselves.
+
+Important legal positioning:
+The app is not a law firm and does not replace an attorney. It provides legal information, drafting assistance, procedural checklists, research support, court-form preparation, and document organization. It must include disclaimers and always encourage users to verify court rules, deadlines, local rules, and legal strategy before filing.
+
+Core concept:
+The app should feel like Perplexity-style legal research plus a guided litigation dashboard. It should not look like a basic chatbot. It should feel like a mission-control center for a pro se case.
+
+Build front end and back end.
+
+Use full creative control on the front end, but make it simple, powerful, clean, and beginner-friendly.
+
+Main user paths:
+
+“I want to sue someone”
+“I am being sued”
+“I received a court document”
+“I need help researching case law”
+“I need help drafting a filing”
+“I need help understanding what happens next”
+Dashboard sections:
+
+Case Story Builder
+Ask the user to explain what happened in detail:
+Who harmed you?
+What happened?
+When did it happen?
+Where did it happen?
+What evidence do you have?
+What law or rights do you believe were violated?
+What damages did you suffer?
+What outcome do you want?
+Are you seeking money, injunction, settlement, dismissal, or another remedy?
+Evidence Upload Center
+Allow uploads of PDFs, images, screenshots, letters, contracts, court notices, emails, text messages, police reports, receipts, and other proof.
+The AI should summarize each upload, extract dates, names, claims, admissions, contradictions, and important facts.
+The app should build an evidence timeline automatically.
+Claim & Jurisdiction Analyzer
+The AI should ask questions to determine:
+Federal court vs state court
+Subject-matter jurisdiction
+Federal question
+Diversity jurisdiction
+Personal jurisdiction
+Venue
+Statute of limitations
+Proper defendants
+Whether government defendants require special rules
+Whether administrative exhaustion may be required
+Filing Fee Waiver / In Forma Pauperis Section
+Ask the user if they need help filing without paying court fees.
+Explain that federal courts use fee-waiver / in forma pauperis applications.
+Include the ability to prepare:
+AO 239 long form
+AO 240 short form
+Supporting affidavit
+Optional declaration explaining financial hardship
+Ask income, expenses, assets, dependents, employment, benefits, debts, and monthly obligations.
+
+Verified Complaint Builder
+Generate a structured verified complaint with:
+Caption
+Parties
+Jurisdiction
+Venue
+Factual background
+Timeline
+Causes of action
+Damages
+Prayer for relief
+Jury demand, if selected
+Verification statement
+Signature block
+Certificate of service if needed
+Exhibits list
+The complaint should be written clearly, factually, and professionally.
+
+Defense Mode
+If the user is being sued, the app should help draft:
+Answer
+Affirmative defenses
+Motion to dismiss
+Motion for more definite statement
+Counterclaims
+Discovery responses
+Settlement response
+Default judgment response
+Motion to set aside default, if applicable
+Court Document Scanner
+Allow the user to upload or photograph anything received from:
+Judge
+Clerk
+Opposing counsel
+Defendant
+Plaintiff
+Process server
+Court system
+The AI should:
+
+Identify the document type
+Summarize it in plain English
+Identify deadlines
+Explain what it means
+Explain what the user must do next
+Warn about procedural traps
+Suggest possible responses
+Generate a draft response when appropriate
+Step-by-Step Court Roadmap
+After the complaint or defense is built, create a visual timeline:
+Pre-filing checklist
+Filing complaint
+Civil cover sheet
+Summons
+Fee payment or IFP application
+Service of process
+Proof of service
+Defendant response deadline
+Motions
+Discovery
+Settlement talks
+Hearings
+Pretrial deadlines
+Trial preparation
+Judgment
+Appeal deadlines
+Local Court Finder
+Ask for the user’s address or ZIP code and identify nearby federal and state courts.
+Show:
+Court name
+Address
+Phone number
+Website
+Filing instructions
+Pro se help desk, if available
+Local rules link
+ECF/e-filing information, if available
+Deep Legal Research Engine
+Build a Perplexity-style research layer:
+Search current law and case law
+Provide citations
+Summarize cases
+Explain how cases help or hurt the user
+Compare similar cases
+Identify legal elements
+Identify pleading standards
+Identify procedural deadlines
+Warn when law may vary by jurisdiction
+Always cite sources and recommend verification
+Procedural Strategy Assistant
+Teach users about common procedural issues:
+Service defects
+Jurisdiction challenges
+Venue issues
+Failure to state a claim
+Deadlines
+Discovery violations
+Motions to dismiss
+Summary judgment
+Default
+Sanctions risk
+Local rule violations
+Also identify possible procedural defects by opposing counsel or the other side.
+
+Settlement Strategy Mode
+Ask:
+Are you trying to fully litigate?
+Are you trying to create pressure for settlement?
+What amount or remedy would resolve the case?
+What facts make your position strong?
+What risks do you face?
+Generate:
+
+Settlement demand letters
+Mediation statements
+Negotiation summaries
+Strength/weakness analysis
+Risk assessment
+Settlement timeline
+Do not promise settlement. Present settlement as one possible goal.
+
+Encouragement Layer
+The app should motivate pro se users with calm, professional encouragement:
+“You can learn the process one step at a time.”
+“Deadlines matter. Let’s identify the next deadline.”
+“Stay factual, organized, and persistent.”
+“Do not file emotionally. File with evidence, law, and procedure.”
+Document Drafting Center
+Generate:
+Verified complaint
+Civil cover sheet helper
+Summons helper
+IFP application
+Motion
+Opposition
+Reply
+Declaration
+Affidavit
+Notice
+Certificate of service
+Discovery requests
+Interrogatories
+Requests for production
+Requests for admission
+Subpoena request
+Settlement demand
+Status report
+Motion to compel
+Motion for extension
+Motion for reconsideration
+Notice of appeal checklist
+AI Case File Memory
+Each user case should have persistent memory:
+Case facts
+Parties
+Claims
+Court
+Judge
+Deadlines
+Evidence
+Filed documents
+Opposing documents
+Strategy notes
+Research history
+Drafts
+Safety and Quality Controls
+Before generating any filing, the app must run a review checklist:
+Are facts supported by evidence?
+Are claims clearly connected to defendants?
+Is jurisdiction explained?
+Are deadlines checked?
+Are exhibits labeled?
+Is the tone professional?
+Are unsupported accusations removed?
+Is the filing formatted correctly?
+Does the user need to verify local rules?
+Technical requirements:
+
+Full-stack app
+User accounts
+Secure case storage
+File upload and OCR
+PDF generation
+Word document export
+Timeline extraction
+AI chat with case memory
+Research with citations
+Web search integration
+Court/location search
+Document templates
+Dashboard cards
+Deadline tracker
+Task checklist
+Notification/reminder system
+Admin panel
+Mobile-friendly design
+Suggested stack:
+
+React or Next.js front end
+Node/Express or Next.js API routes
+PostgreSQL database
+Supabase or similar auth/storage
+OpenAI API for drafting, reasoning, document analysis, and case memory
+Web search API for real-time legal research
+OCR for scanned uploads
+PDF generation library
+Vector database or embeddings for case-file search
+Design direction:
+Make it feel like a legal command center, not a chatbot.
+Use modules such as:
+
+“Tell Your Story”
+“Upload Proof”
+“Build My Case”
+“Research the Law”
+“Draft My Filing”
+“What Did I Receive?”
+“What Do I Do Next?”
+“Settlement Strategy”
+“Court Roadmap”
+“Deadlines”
+The app should guide the user like a smart legal assistant from intake to filing to response to settlement or trial preparation.
+
+Build the MVP first:
+
+User login
+New case creation
+Story intake form
+Evidence upload
+AI summary of facts
+Jurisdiction questionnaire
+IFP questionnaire
+Verified complaint generator
+Step-by-step filing checklist
+Upload court document and receive “what to do next”
+Research assistant with cited sources
+PDF/DOCX export
+Then build advanced features:
+
+Case law research engine
+Local court finder
+Settlement strategy
+Defense mode
+Deadline reminders
+Motion generator
+Discovery generator
+Timeline visualizer
+Procedural defect scanner
+Opposing document analyzer
+Multi-case dashboard
+The final app should help a non-lawyer feel organized, informed, prepared, and supported through the litigation process.
+
