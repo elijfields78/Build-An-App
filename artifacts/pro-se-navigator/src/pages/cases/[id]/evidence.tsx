@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { useListEvidence, useDeleteEvidenceItem, getListEvidenceQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { format } from "date-fns";
 
 export default function CaseEvidence({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
+  const { getToken } = useAuth();
   const { data, isLoading } = useListEvidence(id, { query: { enabled: !isNaN(id), queryKey: getListEvidenceQueryKey(id) } });
   const deleteItem = useDeleteEvidenceItem();
   const qc = useQueryClient();
@@ -29,10 +31,11 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
 
     setIsUploading(true);
     try {
+      const token = await getToken();
       const res = await fetch(`/api/cases/${id}/evidence`, {
         method: 'POST',
         body: formData,
-        // Let the browser set Content-Type with boundary for FormData
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
       if (!res.ok) throw new Error("Upload failed");

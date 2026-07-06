@@ -2,9 +2,10 @@ import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wo
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { useEffect, useRef } from "react";
+import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 // Pages
 import NotFound from "@/pages/not-found";
@@ -38,7 +39,36 @@ if (!clerkPubKey) {
   throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: unknown) => {
+        if (error && typeof error === "object" && "status" in error) {
+          const status = (error as { status: number }).status;
+          if (status === 401 || status === 403 || status === 404) return false;
+        }
+        return failureCount < 2;
+      },
+    },
+  },
+});
+
+/**
+ * Syncs Clerk's session token into the custom-fetch layer so every generated
+ * API hook sends  Authorization: Bearer <token>  on every request.
+ *
+ * Must live inside <ClerkProvider> and <QueryClientProvider>.
+ */
+function ClerkAuthTokenSync() {
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    setAuthTokenGetter(() => getToken());
+    return () => setAuthTokenGetter(null);
+  }, [getToken]);
+
+  return null;
+}
 
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
@@ -147,6 +177,7 @@ function ClerkProviderWithRoutes() {
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       <QueryClientProvider client={queryClient}>
+        <ClerkAuthTokenSync />
         <ClerkQueryClientCacheInvalidator />
         <TooltipProvider>
           <Router />

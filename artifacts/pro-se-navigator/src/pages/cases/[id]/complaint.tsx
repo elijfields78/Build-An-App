@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { useGetComplaint, getGetComplaintQueryKey } from "@workspace/api-client-react";
+import { useAuth } from "@clerk/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +14,7 @@ import { FileText, Download, PlayCircle, Loader2 } from "lucide-react";
 
 export default function CaseComplaint({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
+  const { getToken } = useAuth();
   const { data, isLoading } = useGetComplaint(id, { query: { enabled: !isNaN(id), queryKey: getGetComplaintQueryKey(id) } });
   const qc = useQueryClient();
   
@@ -27,9 +29,13 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
     setStreamedText("");
     
     try {
+      const token = await getToken();
       const res = await fetch(`/api/cases/${id}/complaint/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ juryDemand })
       });
       

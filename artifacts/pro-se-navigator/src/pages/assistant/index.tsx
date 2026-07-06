@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useListOpenaiConversations, useCreateOpenaiConversation, useGetOpenaiConversation, getGetOpenaiConversationQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/react";
 import { BrainCircuit, MessageSquare, Send, Loader2, Plus, Clock, ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AiAssistant() {
+  const { getToken } = useAuth();
   const { data: conversations, isLoading: convsLoading } = useListOpenaiConversations();
   const createConv = useCreateOpenaiConversation();
   const qc = useQueryClient();
@@ -55,9 +57,13 @@ export default function AiAssistant() {
     const raw = firstMessage.trim();
     const title = raw.length > 60 ? raw.slice(0, 57).trimEnd() + "…" : raw;
     try {
+      const token = await getToken();
       await fetch(`/api/openai/conversations/${convId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ title }),
       });
       qc.invalidateQueries({ queryKey: ["/api/openai/conversations"] });
@@ -87,9 +93,13 @@ export default function AiAssistant() {
     }
 
     try {
+      const token = await getToken();
       const res = await fetch(`/api/openai/conversations/${activeConvId}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ content: message })
       });
 

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useListResearchSessions, useCreateResearchSession, useGetResearchSession, getGetResearchSessionQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/react";
 import { BrainCircuit, BookOpen, Send, Loader2, Plus, Clock, ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LegalResearch() {
+  const { getToken } = useAuth();
   const { data: sessions, isLoading: sessionsLoading } = useListResearchSessions();
   const createSession = useCreateResearchSession();
   const qc = useQueryClient();
@@ -69,9 +71,13 @@ export default function LegalResearch() {
     }
 
     try {
+      const token = await getToken();
       const res = await fetch(`/api/research/${activeSessionId}/ask`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ question })
       });
 

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { useListCourtDocuments, useDeleteCourtDocument, getListCourtDocumentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { format } from "date-fns";
 
 export default function CaseCourtDocuments({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
+  const { getToken } = useAuth();
   const { data, isLoading } = useListCourtDocuments(id, { query: { enabled: !isNaN(id), queryKey: getListCourtDocumentsQueryKey(id) } });
   const deleteItem = useDeleteCourtDocument();
   const qc = useQueryClient();
@@ -29,9 +31,11 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
 
     setIsUploading(true);
     try {
+      const token = await getToken();
       const res = await fetch(`/api/cases/${id}/court-documents`, {
         method: 'POST',
         body: formData,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
       if (!res.ok) throw new Error("Upload failed");
