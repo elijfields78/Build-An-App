@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Trash2, FileText, UploadCloud, ShieldAlert, FileWarning, Clock, Zap } from "lucide-react";
+import { Trash2, FileText, UploadCloud, ShieldAlert, FileWarning, Clock, Zap, ScanText } from "lucide-react";
 import { format } from "date-fns";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
@@ -81,23 +81,23 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
         featureName="Court Document Scanner"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader className="bg-slate-50 border-b">
-              <CardTitle className="text-lg">Scan Document</CardTitle>
-              <CardDescription>Upload motions, orders, or notices you received from the court or opposing counsel.</CardDescription>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-lg shadow-black/5">
+            <CardHeader className="bg-muted/10 border-b border-border/50">
+              <CardTitle className="text-lg font-serif">Scan Document</CardTitle>
+              <CardDescription className="text-xs mt-1">Upload motions, orders, or notices you received from the court or opposing counsel.</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               {tier === "free" && scanUsage && (
-                <div className="mb-4 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                  <div className="flex items-center justify-between font-semibold mb-1">
-                    <span>Free tier usage</span>
-                    <span>{scanUsage.used}/{scanUsage.limit} scans</span>
+                <div className="mb-5 p-4 rounded-xl bg-accent/10 border border-accent/20 text-foreground/90 text-sm">
+                  <div className="flex items-center justify-between font-bold mb-2">
+                    <span className="text-accent">Free tier usage</span>
+                    <span className="font-mono text-xs">{scanUsage.used}/{scanUsage.limit} scans</span>
                   </div>
-                  <div className="h-1.5 bg-amber-200 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-background rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-amber-500 rounded-full transition-all"
+                      className="h-full bg-accent rounded-full transition-all"
                       style={{ width: `${Math.min(100, (scanUsage.used / scanUsage.limit) * 100)}%` }}
                     />
                   </div>
@@ -105,21 +105,21 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
               )}
 
               {atLimit ? (
-                <div className="text-center py-4">
-                  <p className="text-sm text-slate-700 font-semibold mb-1">Monthly scan limit reached</p>
-                  <p className="text-xs text-slate-500 mb-3">Upgrade for unlimited court document scanning.</p>
-                  <Button size="sm" onClick={() => setUpgradeOpen(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
-                    <Zap className="h-3.5 w-3.5 mr-1.5" /> Upgrade to Advocate
+                <div className="text-center py-6 border border-border/50 rounded-xl bg-background/30">
+                  <p className="text-base text-foreground font-bold font-serif mb-2">Scan limit reached</p>
+                  <p className="text-sm text-muted-foreground mb-4">Upgrade for unlimited court document scanning.</p>
+                  <Button onClick={() => setUpgradeOpen(true)} className="bg-[#D4A843] hover:bg-[#b58f38] text-black font-bold">
+                    <Zap className="h-4 w-4 mr-2" /> Upgrade to Advocate
                   </Button>
                 </div>
               ) : (
-                <form onSubmit={handleUpload} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="file">Select PDF or Image</Label>
-                    <Input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg" required />
+                <form onSubmit={handleUpload} className="space-y-5">
+                  <div className="space-y-2.5">
+                    <Label htmlFor="file" className="text-sm font-bold text-foreground">Select PDF or Image</Label>
+                    <Input id="file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg" required className="bg-background/50" />
                   </div>
-                  <Button type="submit" disabled={isUploading} className="w-full">
-                    <UploadCloud className="h-4 w-4 mr-2" />
+                  <Button type="submit" disabled={isUploading} className="w-full min-h-12 font-bold shadow-md shadow-primary/20">
+                    <ScanText className="h-4 w-4 mr-2" />
                     {isUploading ? "Scanning..." : "Upload & Analyze"}
                   </Button>
                 </form>
@@ -127,13 +127,16 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
             </CardContent>
           </Card>
 
-          <Card className="bg-red-50 border-red-200 text-red-900">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 font-bold mb-2 text-red-800">
+          <Card className="bg-destructive/10 border-none relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <ShieldAlert className="w-24 h-24 text-destructive" />
+            </div>
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-center gap-2 font-bold mb-3 text-destructive tracking-tight text-lg font-serif">
                 <ShieldAlert className="h-5 w-5" />
                 Deadlines Matter
               </div>
-              <p className="text-sm opacity-90 leading-relaxed">
+              <p className="text-sm text-foreground/80 leading-relaxed">
                 If you receive a "Motion to Dismiss" or "Motion for Summary Judgment", you usually have 14 to 21 days to respond. If you miss the deadline, you lose the case automatically. Always verify local rules.
               </p>
             </CardContent>
@@ -147,68 +150,70 @@ export default function CaseCourtDocuments({ params }: { params: { id: string } 
               <Skeleton className="h-48 w-full" />
             </div>
           ) : data?.length === 0 ? (
-            <Card className="border-dashed border-2 bg-slate-50">
-              <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-                <FileWarning className="h-12 w-12 text-slate-300 mb-4" />
-                <h3 className="text-lg font-bold text-slate-700">No Documents Uploaded</h3>
-                <p className="text-slate-500">Upload documents you receive to get AI translation and deadline extraction.</p>
+            <Card className="border-dashed border-2 bg-transparent">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="p-4 bg-muted/30 rounded-full mb-4">
+                  <FileWarning className="h-10 w-10 text-muted-foreground opacity-50" />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-foreground mb-2">No Documents Uploaded</h3>
+                <p className="text-sm text-muted-foreground max-w-sm">Upload documents you receive to get AI translation and deadline extraction.</p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-6">
               {data?.map(doc => (
-                <Card key={doc.id} className="overflow-hidden shadow-sm">
-                  <CardHeader className="bg-slate-50 border-b pb-3 pt-4 px-5 flex flex-row items-start justify-between">
+                <Card key={doc.id} className="overflow-hidden shadow-lg shadow-black/5 bg-card/50 backdrop-blur-sm border-border/50 group">
+                  <CardHeader className="bg-muted/10 border-b border-border/50 pb-3 pt-4 px-6 flex flex-row items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1.5">
                         <FileText className="h-4 w-4 text-primary" />
-                        <CardTitle className="text-base">{doc.fileName}</CardTitle>
+                        <CardTitle className="text-base font-serif tracking-tight">{doc.fileName}</CardTitle>
                       </div>
-                      <div className="text-xs text-slate-500 flex items-center gap-2">
-                        <span className="uppercase font-semibold text-primary">{doc.documentType || 'Unknown Type'}</span>
+                      <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-2">
+                        <span className="uppercase font-bold tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded">{doc.documentType || 'Unknown Type'}</span>
                         <span>•</span>
-                        <span>{format(new Date(doc.uploadedAt), 'PPp')}</span>
+                        <span>{format(new Date(doc.uploadedAt), 'MMM dd, yyyy HH:mm')}</span>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(doc.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 -mt-1 -mr-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(doc.id)} className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 h-8 w-8 -mt-1 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
-                      <div className="p-5 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50">
+                      <div className="p-6 space-y-6">
                         <div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Plain English Summary</h4>
-                          <p className="text-sm text-slate-800 leading-relaxed">{doc.plainEnglishSummary || 'Analysis pending...'}</p>
+                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Plain English Summary</h4>
+                          <p className="text-sm text-foreground/90 leading-relaxed font-medium">{doc.plainEnglishSummary || 'Analysis pending...'}</p>
                         </div>
                         {doc.whatItMeans && (
                           <div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">What It Means</h4>
-                            <p className="text-sm text-slate-800 leading-relaxed">{doc.whatItMeans}</p>
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">What It Means</h4>
+                            <p className="text-sm text-foreground/80 leading-relaxed">{doc.whatItMeans}</p>
                           </div>
                         )}
                       </div>
-                      <div className="p-5 space-y-4 bg-slate-50/50">
+                      <div className="p-6 space-y-6 bg-background/30">
                         {doc.deadlinesIdentified && (
-                          <div className="bg-red-50 border border-red-100 rounded-md p-3">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-800 mb-1 flex items-center gap-1">
-                              <Clock className="h-3 w-3" /> Identified Deadlines
+                          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-destructive mb-2 flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" /> Identified Deadlines
                             </h4>
-                            <p className="text-sm text-red-900 font-medium">{doc.deadlinesIdentified}</p>
+                            <p className="text-sm text-destructive font-bold">{doc.deadlinesIdentified}</p>
                           </div>
                         )}
                         {doc.whatToDoNext && (
                           <div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Action Required</h4>
-                            <p className="text-sm text-slate-800 leading-relaxed">{doc.whatToDoNext}</p>
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Action Required</h4>
+                            <p className="text-sm text-foreground/90 leading-relaxed font-medium">{doc.whatToDoNext}</p>
                           </div>
                         )}
                         {doc.proceduralWarnings && (
                           <div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-orange-600 mb-1 flex items-center gap-1">
-                              <ShieldAlert className="h-3 w-3" /> Procedural Warnings
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#D4A843] mb-2 flex items-center gap-1.5">
+                              <ShieldAlert className="h-3.5 w-3.5" /> Procedural Warnings
                             </h4>
-                            <p className="text-sm text-orange-800 leading-relaxed">{doc.proceduralWarnings}</p>
+                            <p className="text-sm text-foreground/80 leading-relaxed border-l-2 border-[#D4A843] pl-3 py-0.5">{doc.proceduralWarnings}</p>
                           </div>
                         )}
                       </div>

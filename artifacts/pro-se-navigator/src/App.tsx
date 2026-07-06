@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, createContext, useContext, useState } from "react";
 import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 // Pages
@@ -55,11 +55,58 @@ const queryClient = new QueryClient({
   },
 });
 
+type Theme = "dark" | "light"
+type ThemeProviderState = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+const ThemeContext = createContext<ThemeProviderState | undefined>(undefined)
+
+export function ThemeProvider({
+  children,
+  defaultTheme = "dark",
+  storageKey = "theme",
+}: {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+}) {
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  )
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    root.classList.remove("light", "dark")
+    root.classList.add(theme)
+  }, [theme])
+
+  const value = {
+    theme,
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme)
+      setTheme(theme)
+    },
+  }
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext)
+  if (context === undefined)
+    throw new Error("useTheme must be used within a ThemeProvider")
+  return context
+}
+
 /**
  * Syncs Clerk's session token into the custom-fetch layer so every generated
  * API hook sends  Authorization: Bearer <token>  on every request.
- *
- * Must live inside <ClerkProvider> and <QueryClientProvider>.
  */
 function ClerkAuthTokenSync() {
   const { getToken } = useAuth();
@@ -194,9 +241,11 @@ function ClerkProviderWithRoutes() {
 
 function App() {
   return (
-    <WouterRouter base={basePath}>
-      <ClerkProviderWithRoutes />
-    </WouterRouter>
+    <ThemeProvider defaultTheme="dark">
+      <WouterRouter base={basePath}>
+        <ClerkProviderWithRoutes />
+      </WouterRouter>
+    </ThemeProvider>
   );
 }
 

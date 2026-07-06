@@ -7,6 +7,7 @@ import { BrainCircuit, MessageSquare, Send, Loader2, Plus, Clock, ChevronLeft, X
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TypingIndicator } from "@/components/ui/typing-indicator";
 
 export default function AiAssistant() {
   const { getToken } = useAuth();
@@ -36,7 +37,7 @@ export default function AiAssistant() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [activeConv?.messages, streamedResponse]);
+  }, [activeConv?.messages, streamedResponse, isStreaming]);
 
   const handleNewConv = () => {
     createConv.mutate({ data: { title: "New Conversation" } }, {
@@ -126,47 +127,46 @@ export default function AiAssistant() {
   };
 
   const SidebarPanel = () => (
-    <div className="flex flex-col h-full bg-white">
-      <div className="p-3 border-b bg-slate-50/50 flex items-center gap-2">
+    <div className="flex flex-col h-full bg-sidebar/80 backdrop-blur-xl border-r border-sidebar-border">
+      <div className="p-4 border-b border-sidebar-border flex items-center gap-3">
         <Button
           onClick={handleNewConv}
-          className="flex-1 justify-start text-sm shadow-sm"
+          className="flex-1 justify-start text-sm shadow-sm bg-[#D4A843]/20 text-[#D4A843] hover:bg-[#D4A843]/30 border-transparent transition-all"
           variant="outline"
           disabled={createConv.isPending}
         >
           {createConv.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-          New Conversation
+          <span className="font-bold tracking-wide">New Chat</span>
         </Button>
-        {/* Close button — mobile only */}
         <button
-          className="md:hidden p-1.5 rounded-md text-slate-500 hover:bg-slate-100"
+          className="md:hidden p-2 rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
           onClick={() => setShowSidebar(false)}
         >
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-2">
-        <div className="px-2 pt-2 pb-1 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+      <div className="flex-1 overflow-y-auto p-3 scrollbar-none">
+        <div className="px-2 pt-2 pb-3 text-[10px] font-bold text-sidebar-foreground/40 uppercase tracking-widest flex items-center gap-1.5">
           <Clock className="h-3 w-3" /> Recent Chats
         </div>
         {convsLoading ? (
           <div className="space-y-2 p-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-10 w-full bg-sidebar-accent" />
+            <Skeleton className="h-10 w-full bg-sidebar-accent" />
+            <Skeleton className="h-10 w-full bg-sidebar-accent" />
           </div>
         ) : conversations?.length === 0 ? (
-          <div className="p-4 text-center text-xs text-slate-400">No conversations yet</div>
+          <div className="p-4 text-center text-xs text-sidebar-foreground/40 font-medium">No conversations yet</div>
         ) : (
-          <div className="space-y-0.5 mt-1">
+          <div className="space-y-1">
             {conversations?.map(conv => (
               <button
                 key={conv.id}
                 onClick={() => selectConv(conv.id)}
-                className={`w-full text-left px-3 py-2 text-sm truncate rounded-md transition-colors ${
+                className={`w-full text-left px-3 py-2.5 text-sm truncate rounded-lg transition-all ${
                   activeConvId === conv.id
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    ? "bg-[#D4A843] text-black shadow-md font-medium"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`}
               >
                 {conv.title}
@@ -180,131 +180,134 @@ export default function AiAssistant() {
 
   return (
     <AppLayout title="AI Assistant">
-      <div className="flex flex-1 overflow-hidden min-h-0">
+      <div className="flex flex-1 overflow-hidden min-h-0 bg-background relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#D4A843]/5 via-background to-background pointer-events-none" />
 
-        {/* Mobile overlay backdrop */}
         {showSidebar && (
           <div
-            className="fixed inset-0 z-20 bg-black/40 md:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity"
             onClick={() => setShowSidebar(false)}
           />
         )}
 
-        {/* Conversation list — drawer on mobile, fixed panel on desktop */}
         <aside
           className={`
-            fixed inset-y-0 left-0 z-30 w-72 border-r shadow-lg
-            transform transition-transform duration-200 ease-in-out
-            md:relative md:inset-auto md:w-64 md:translate-x-0 md:shadow-none md:z-auto md:flex md:flex-col
+            fixed inset-y-0 left-0 z-50 w-72 
+            transform transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]
+            md:relative md:inset-auto md:w-72 md:translate-x-0
             ${showSidebar ? "translate-x-0" : "-translate-x-full"}
           `}
         >
           <SidebarPanel />
         </aside>
 
-        {/* Chat area */}
-        <div className="flex-1 flex flex-col bg-white min-w-0">
-          {/* Chat toolbar — mobile gets a "conversations" button */}
-          <div className="h-11 border-b bg-slate-50 flex items-center px-3 gap-2 shrink-0">
+        <div className="flex-1 flex flex-col min-w-0 relative z-10">
+          <div className="h-14 border-b border-border/50 bg-card/50 backdrop-blur-md flex items-center px-4 gap-3 shrink-0">
             <button
-              className="md:hidden flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-200 transition-colors"
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-md text-foreground/70 hover:bg-accent/20 hover:text-foreground transition-colors"
               onClick={() => setShowSidebar(true)}
             >
-              <MessageSquare className="h-3.5 w-3.5" />
-              {activeConv?.title
-                ? <span className="max-w-[140px] truncate">{activeConv.title}</span>
-                : "Conversations"}
-              <ChevronLeft className="h-3.5 w-3.5 rotate-180" />
+              <MessageSquare className="h-4 w-4" />
             </button>
-            <span className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-700">
-              <BrainCircuit className="h-4 w-4 text-primary" />
-              {activeConv?.title || "Select a conversation"}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Active Chat</span>
+              <span className="text-sm font-bold text-foreground font-serif tracking-tight truncate max-w-[200px] md:max-w-md">
+                {activeConv?.title || "Select a conversation"}
+              </span>
+            </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 p-3 md:p-6 overflow-y-auto space-y-4 md:space-y-6" ref={scrollRef}>
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-8" ref={scrollRef}>
             {activeConvLoading ? (
               <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 text-primary animate-spin opacity-50" />
+                <Loader2 className="h-8 w-8 text-[#D4A843] animate-spin opacity-50" />
               </div>
             ) : !activeConv ? (
-              <div className="flex items-center justify-center h-full text-slate-400 flex-col gap-4 text-center px-4">
-                <MessageSquare className="h-10 w-10 opacity-20" />
-                <p className="text-sm">
-                  Tap <strong>Conversations</strong> above to start or pick a chat.
-                </p>
-                <Button size="sm" onClick={handleNewConv} disabled={createConv.isPending}>
-                  <Plus className="h-4 w-4 mr-1" /> New Conversation
+              <div className="flex items-center justify-center h-full flex-col gap-6 text-center px-4 max-w-md mx-auto">
+                <div className="p-6 bg-muted/20 rounded-full">
+                  <MessageSquare className="h-12 w-12 text-muted-foreground opacity-30" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-2xl text-foreground mb-2">Strategic Legal Assistant</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Start a chat to translate complex legal jargon or strategize your next move.</p>
+                </div>
+                <Button size="lg" onClick={handleNewConv} disabled={createConv.isPending} className="font-bold tracking-wide shadow-lg bg-[#D4A843] hover:bg-[#b58f38] text-black">
+                  <Plus className="h-4 w-4 mr-2" /> Start Chat
                 </Button>
               </div>
             ) : (
-              <>
+              <div className="max-w-4xl mx-auto space-y-6">
                 {(!activeConv.messages || activeConv.messages.length === 0) && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0 mt-1 shadow-sm">
-                      <BrainCircuit className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#D4A843]/20 flex items-center justify-center text-[#D4A843] shrink-0 shadow-sm border border-[#D4A843]/30">
+                      <BrainCircuit className="h-5 w-5" />
                     </div>
-                    <div className="bg-slate-50 border rounded-lg p-4 text-sm text-slate-800 flex-1 leading-relaxed shadow-sm">
-                      <p className="font-medium mb-2">Hello. I am here to help you understand legal procedures and translate complex court documents into plain English.</p>
-                      <p className="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2 mt-3">I can help you:</p>
-                      <ul className="list-disc list-inside space-y-1 text-slate-700 text-xs md:text-sm">
-                        <li>Translate motions and orders into simple terms</li>
-                        <li>Explain the difference between pleadings and motions</li>
-                        <li>Help you organize facts before using the Story Builder</li>
+                    <div className="bg-card border border-border/50 rounded-2xl rounded-tl-sm p-6 text-sm text-foreground flex-1 shadow-sm leading-relaxed">
+                      <p className="font-serif font-bold text-lg mb-3">Hello. I am here to help you understand legal procedures and translate complex court documents into plain English.</p>
+                      <p className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground mb-3 mt-4">I can help you:</p>
+                      <ul className="text-sm text-foreground/80 space-y-2 list-none">
+                        <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Translate motions and orders into simple terms</li>
+                        <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Explain the difference between pleadings and motions</li>
+                        <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Help you organize facts before using the Story Builder</li>
                       </ul>
                     </div>
                   </div>
                 )}
 
                 {activeConv.messages?.map((msg, i) => (
-                  <div key={i} className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                  <div key={i} className={`flex items-start gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                     {msg.role !== "user" && (
-                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0 mt-1 shadow-sm">
-                        <BrainCircuit className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                      <div className="w-10 h-10 rounded-xl bg-[#D4A843]/20 flex items-center justify-center text-[#D4A843] shrink-0 shadow-sm border border-[#D4A843]/30">
+                        <BrainCircuit className="h-5 w-5" />
                       </div>
                     )}
-                    <div className={`px-3 py-2.5 md:p-4 rounded-xl text-sm leading-relaxed max-w-[88%] shadow-sm
+                    <div className={`px-5 py-4 rounded-2xl text-sm leading-relaxed max-w-[85%] shadow-sm
                       ${msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-slate-50 border text-slate-800 rounded-bl-sm"}`}>
+                        ? "bg-[#D4A843] text-black rounded-br-sm shadow-[#D4A843]/20 font-medium"
+                        : "bg-card border border-border/50 text-foreground rounded-tl-sm"}`}>
                       <div className="whitespace-pre-wrap">{msg.content}</div>
                     </div>
                   </div>
                 ))}
 
                 {isStreaming && streamedResponse && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0 mt-1 shadow-sm">
-                      <Loader2 className="h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#D4A843]/20 flex items-center justify-center text-[#D4A843] shrink-0 shadow-sm border border-[#D4A843]/30">
+                      <BrainCircuit className="h-5 w-5" />
                     </div>
-                    <div className="bg-slate-50 border rounded-xl rounded-bl-sm px-3 py-2.5 md:p-4 text-sm text-slate-800 flex-1 leading-relaxed shadow-sm">
+                    <div className="bg-card border border-border/50 rounded-2xl rounded-tl-sm px-5 py-4 text-sm text-foreground flex-1 shadow-sm leading-relaxed">
                       <div className="whitespace-pre-wrap">{streamedResponse}</div>
-                      <span className="inline-block w-1.5 h-4 bg-primary animate-pulse ml-0.5 align-middle rounded-sm" />
                     </div>
                   </div>
                 )}
-              </>
+                {isStreaming && !streamedResponse && (
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#D4A843]/20 flex items-center justify-center text-[#D4A843] shrink-0 shadow-sm border border-[#D4A843]/30">
+                       <BrainCircuit className="h-5 w-5" />
+                    </div>
+                    <TypingIndicator className="[&>div]:bg-[#D4A843]" />
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Input */}
-          <div className="p-3 border-t bg-slate-50 shrink-0">
-            <form onSubmit={handleSend} className="relative flex items-center max-w-3xl mx-auto">
+          <div className="p-4 md:p-6 border-t border-border/50 bg-card/80 backdrop-blur-md shrink-0">
+            <form onSubmit={handleSend} className="relative flex items-center max-w-4xl mx-auto">
               <Input
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 disabled={isStreaming || !activeConvId}
-                className="w-full rounded-full border-slate-300 shadow-sm pr-11 py-5 pl-4 text-sm md:text-base"
+                className="w-full h-14 rounded-full border-border/50 bg-background shadow-sm pr-14 pl-6 text-base focus-visible:ring-[#D4A843]/50 transition-shadow focus-visible:shadow-lg focus-visible:shadow-[#D4A843]/10"
                 placeholder={activeConvId ? "Message AI Assistant…" : "Start a conversation first"}
               />
               <Button
                 type="submit"
                 size="icon"
                 disabled={isStreaming || !inputValue.trim() || !activeConvId}
-                className="absolute right-1.5 rounded-full h-8 w-8 md:h-9 md:w-9"
+                className="absolute right-2 rounded-full h-10 w-10 shadow-md bg-[#D4A843] hover:bg-[#b58f38] text-black disabled:bg-[#D4A843]/50"
               >
-                <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <Send className="h-4 w-4 ml-0.5" />
               </Button>
             </form>
           </div>

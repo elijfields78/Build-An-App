@@ -3,7 +3,6 @@ import { Link, useLocation } from "wouter";
 import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "./AppLayout";
 import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function CaseLayout({ children, caseId, title }: { children: React.ReactNode; caseId: string; title: string }) {
   const [location] = useLocation();
@@ -25,9 +24,9 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
   return (
     <AppLayout title={isLoading ? "Loading Case..." : currentCase?.title || "Case Details"}>
       <div className="flex flex-col min-h-full">
-        {/* Tab bar — scrollable, no scrollbar shown */}
-        <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
-          <div className="flex items-center gap-0.5 overflow-x-auto px-2 py-1.5 scrollbar-none">
+        {/* Tab bar — compact, dark matching surface */}
+        <div className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
+          <div className="flex items-center gap-1 overflow-x-auto px-3 py-2 scrollbar-none md:justify-center">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = location === tab.href;
@@ -35,10 +34,10 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors shrink-0 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] md:text-xs font-bold uppercase tracking-wider rounded-md whitespace-nowrap transition-all shrink-0 ${
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                      ? "text-primary border-b-2 border-primary bg-primary/5 rounded-b-none"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -49,9 +48,9 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full">
-          <div className="mb-4 md:mb-6">
-            <h1 className="text-xl md:text-2xl font-serif font-bold text-slate-900">{title}</h1>
+        <div className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground tracking-tight">{title}</h1>
           </div>
           {children}
         </div>

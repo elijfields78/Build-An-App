@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -74,58 +74,57 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Clean minimal light mode for an authoritative look */
-  --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
+  /* Warm neutral palette for light mode */
+  --background: 40 20% 97%; /* #F8F6F2 */
+  --foreground: 228 50% 7%;
   
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --border: 40 15% 90%;
+  --input: 40 15% 90%;
+  --ring: 239 84% 67%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --card-border: 214 32% 91%;
+  --card: 40 20% 95%; /* #EFEDE8 */
+  --card-foreground: 228 50% 7%;
+  --card-border: 40 15% 88%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --popover-border: 214 32% 91%;
+  --popover: 40 20% 95%;
+  --popover-foreground: 228 50% 7%;
+  --popover-border: 40 15% 88%;
 
-  --primary: 222 47% 11%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
   
-  --secondary: 214 32% 91%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary: 40 15% 90%;
+  --secondary-foreground: 228 50% 7%;
 
-  --muted: 210 40% 96.1%;
+  --muted: 40 15% 90%;
   --muted-foreground: 215 16% 47%;
 
-  --accent: 214 32% 91%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 262 87% 65%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
 
-  --chart-1: 222 47% 11%;
-  --chart-2: 214 32% 91%;
-  --chart-3: 215 16% 47%;
-  --chart-4: 210 40% 96.1%;
-  --chart-5: 0 0% 100%;
+  --chart-1: 239 84% 67%;
+  --chart-2: 40 64% 55%;
+  --chart-3: 262 87% 65%;
+  --chart-4: 215 16% 47%;
+  --chart-5: 228 50% 7%;
 
-  /* Sidebar dark navy */
-  --sidebar: 222 47% 11%;
+  --sidebar: 228 50% 7%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-border: 222 47% 15%;
-  --sidebar-primary: 210 40% 98%;
-  --sidebar-primary-foreground: 222 47% 11%;
-  --sidebar-accent: 222 47% 15%;
+  --sidebar-border: 228 40% 12%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 228 40% 12%;
   --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-ring: 222 47% 20%;
+  --sidebar-ring: 239 84% 67%;
 
   --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: 'Libre Baskerville', serif;
-  --app-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --app-font-serif: 'Space Grotesk', sans-serif;
+  --app-font-mono: 'JetBrains Mono', monospace;
   
-  --radius: 0.375rem;
+  --radius: 0.75rem;
 
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
@@ -150,59 +149,63 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  /* Deep slate/navy dark mode */
-  --background: 222 47% 11%;
+  /* Dark-first palette */
+  --background: 228 50% 7%; /* #0A0E1A */
   --foreground: 210 40% 98%;
 
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 224 76% 48%;
+  --border: 0 0% 100% / 0.08;
+  --input: 228 38% 16%;
+  --ring: 239 84% 67%;
 
-  --card: 222 47% 11%;
+  --card: 228 40% 12%; /* #141A2A */
   --card-foreground: 210 40% 98%;
-  --card-border: 217 33% 17%;
+  --card-border: 0 0% 100% / 0.08;
 
-  --popover: 222 47% 11%;
+  --popover: 228 40% 12%;
   --popover-foreground: 210 40% 98%;
-  --popover-border: 217 33% 17%;
+  --popover-border: 0 0% 100% / 0.08;
 
-  --primary: 210 40% 98%;
-  --primary-foreground: 222 47% 11%;
+  --primary: 239 84% 67%; /* #6366F1 */
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 217 33% 17%;
+  --secondary: 228 38% 16%; /* #1A2138 */
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 228 38% 16%;
+  --muted-foreground: 215 25% 65%; /* #94A3B8 */
 
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 262 87% 65%; /* #8B5CF6 */
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
 
-  --chart-1: 221 83% 53%;
-  --chart-2: 217 33% 17%;
-  --chart-3: 215 20% 65%;
-  --chart-4: 210 40% 98%;
-  --chart-5: 222 47% 11%;
+  --chart-1: 239 84% 67%;
+  --chart-2: 40 64% 55%; /* #D4A843 */
+  --chart-3: 262 87% 65%;
+  --chart-4: 215 25% 65%;
+  --chart-5: 228 38% 16%;
 
-  --sidebar: 224 71% 4%;
+  --sidebar: 228 50% 7%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-border: 217 33% 17%;
-  --sidebar-primary: 210 40% 98%;
-  --sidebar-primary-foreground: 222 47% 11%;
-  --sidebar-accent: 217 33% 17%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-ring: 217 33% 17%;
+  --sidebar-border: 0 0% 100% / 0.08;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 239 84% 67%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 239 84% 67%;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  html {
+    /* Enforce smooth scrolling and consistent background */
+    @apply antialiased;
+  }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans bg-background text-foreground;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight;
@@ -218,4 +221,19 @@
     color: hsl(var(--muted-foreground));
     pointer-events: none;
   }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
 }

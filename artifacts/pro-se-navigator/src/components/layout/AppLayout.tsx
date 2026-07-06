@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth, useClerk } from "@clerk/react";
-import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings } from "lucide-react";
+import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
+import { useTheme } from "@/App";
 
 const TIER_LABELS: Record<string, { label: string; color: string }> = {
-  free: { label: "Free", color: "bg-slate-600 text-slate-200" },
-  advocate: { label: "Advocate", color: "bg-primary text-white" },
-  warroom: { label: "War Room", color: "bg-amber-600 text-white" },
+  free: { label: "Free", color: "bg-slate-700/50 text-slate-300 border-slate-600" },
+  advocate: { label: "Advocate", color: "bg-primary/20 text-primary border-primary/30" },
+  warroom: { label: "War Room", color: "bg-[#D4A843]/20 text-[#D4A843] border-[#D4A843]/30" },
 };
 
 export function AppLayout({ children, title }: { children: React.ReactNode; title?: string }) {
   const [location] = useLocation();
-  const { signOut } = useClerk();
+  const { signOut, user } = useClerk();
   const { getToken } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { tier } = useBillingStatus();
+  const { theme, setTheme } = useTheme();
 
   const navLinks = [
     { label: "Dashboard", href: "/dashboard", icon: Briefcase, active: location === "/dashboard" },
@@ -27,6 +29,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
 
   const tierInfo = TIER_LABELS[tier] ?? TIER_LABELS.free;
   const isPaid = tier === "advocate" || tier === "warroom";
+  const initials = user?.firstName?.[0] || user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || 'U';
 
   const openPortal = async () => {
     try {
@@ -44,21 +47,28 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
 
   const SidebarContent = () => (
     <>
-      <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-        <h1 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-          <Scale className="h-5 w-5 shrink-0" />
-          Pro Se Navigator
-        </h1>
-        <button
-          className="md:hidden text-slate-400 hover:text-white p-1"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <X className="h-5 w-5" />
-        </button>
+      <div className="p-4 border-b border-sidebar-border flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="font-serif text-xl font-bold text-white flex items-center gap-2 tracking-tight">
+            <Scale className="h-6 w-6 shrink-0 text-primary" />
+            Pro Se Navigator
+          </h1>
+          <button
+            className="md:hidden text-slate-400 hover:text-white p-1"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full border font-bold ${tierInfo.color}`}>
+            {tierInfo.label} Tier
+          </span>
+        </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        <div className="pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <div className="pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
           Navigation
         </div>
         {navLinks.map(({ label, href, icon: Icon, active }) => (
@@ -66,86 +76,97 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
             key={href}
             href={href}
             onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
               active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-slate-300 hover:bg-sidebar-accent hover:text-white"
+                ? "bg-primary text-white shadow-sm"
+                : "text-slate-400 hover:bg-sidebar-accent hover:text-white"
             }`}
           >
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className={`h-4 w-4 shrink-0 ${active ? 'opacity-100' : 'opacity-70'}`} />
             {label}
           </Link>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border space-y-2">
+      <div className="p-4 border-t border-sidebar-border space-y-3">
         <Link
           href="/pricing"
           onClick={() => setSidebarOpen(false)}
-          className={`flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all ${
             location === "/pricing"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "text-slate-300 hover:bg-sidebar-accent hover:text-white"
+              ? "bg-primary text-white shadow-sm"
+              : "text-slate-400 hover:bg-sidebar-accent hover:text-white"
           }`}
         >
-          <span className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 shrink-0" />
-            Billing & Plans
-          </span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${tierInfo.color}`}>
-            {tierInfo.label}
-          </span>
+          <CreditCard className={`h-4 w-4 shrink-0 ${location === '/pricing' ? 'opacity-100' : 'opacity-70'}`} />
+          Billing & Plans
         </Link>
 
         {isPaid ? (
           <button
             onClick={() => { setSidebarOpen(false); void openPortal(); }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-sidebar-accent hover:text-white transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-400 hover:bg-sidebar-accent hover:text-white transition-all"
           >
-            <Settings className="h-4 w-4 shrink-0" />
+            <Settings className="h-4 w-4 shrink-0 opacity-70" />
             Manage Billing
           </button>
         ) : (
           <Link
             href="/pricing"
             onClick={() => setSidebarOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold text-amber-300 hover:text-amber-100 hover:bg-sidebar-accent transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-bold text-[#D4A843] hover:text-[#f3cd6e] hover:bg-sidebar-accent transition-all"
           >
-            <Zap className="h-3.5 w-3.5" />
-            Upgrade for full access
+            <Zap className="h-4 w-4 shrink-0" />
+            Upgrade to Pro
           </Link>
         )}
 
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-slate-300 hover:text-white hover:bg-sidebar-accent"
-          onClick={() => signOut()}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="flex items-center justify-between pt-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="text-slate-400 hover:text-white hover:bg-sidebar-accent"
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="text-slate-400 hover:text-white hover:bg-sidebar-accent px-2"
+            onClick={() => signOut()}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+
+          <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-white uppercase ml-2 shrink-0">
+            {initials}
+          </div>
+        </div>
       </div>
     </>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <div className="bg-blue-900 text-white px-4 py-2 text-center text-xs font-medium leading-snug">
+    <div className="flex flex-col min-h-[100dvh] bg-background">
+      <div className="bg-primary/10 border-b border-primary/20 text-primary-foreground dark:text-primary px-4 py-2 text-center text-xs font-medium leading-snug">
         Legal information only — not legal advice. Always verify deadlines and local rules before filing.
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         <aside
           className={`
-            fixed inset-y-0 left-0 z-40 w-64 bg-sidebar text-sidebar-foreground flex flex-col
-            transform transition-transform duration-200 ease-in-out
+            fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground flex flex-col
+            backdrop-blur-xl border-r border-sidebar-border
+            transform transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]
             md:relative md:translate-x-0 md:z-auto
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           `}
@@ -153,20 +174,22 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           <SidebarContent />
         </aside>
 
-        <main className="flex-1 flex flex-col min-w-0 bg-slate-50/50 overflow-hidden">
-          <header className="h-14 border-b bg-white flex items-center justify-between px-4 shadow-sm z-10 shrink-0">
+        <main className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
+          <header className="h-14 border-b bg-card/80 backdrop-blur-md flex items-center justify-between px-4 z-10 shrink-0 sticky top-0">
             <button
-              className="md:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 mr-2"
+              className="md:hidden p-2 -ml-2 rounded-md text-foreground hover:bg-accent hover:text-accent-foreground"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h2 className="font-semibold text-slate-800 truncate flex-1 text-sm md:text-base">
+            <h2 className="font-serif font-semibold text-foreground truncate flex-1 text-sm md:text-base tracking-tight ml-2 md:ml-0">
               {title}
             </h2>
           </header>
-          <div className="flex-1 overflow-auto flex flex-col min-h-0">{children}</div>
+          <div className="flex-1 overflow-auto flex flex-col min-h-0 relative z-0">
+            {children}
+          </div>
         </main>
       </div>
     </div>

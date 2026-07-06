@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Trash2, FileText, UploadCloud, Eye, Image as ImageIcon, Video, File } from "lucide-react";
+import { Trash2, FileText, UploadCloud, Eye, Image as ImageIcon, Video, File, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 
 export default function CaseEvidence({ params }: { params: { id: string } }) {
@@ -61,32 +61,32 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
   };
 
   const getIconForType = (type: string) => {
-    if (type.includes('image')) return <ImageIcon className="h-5 w-5 text-blue-500" />;
-    if (type.includes('video')) return <Video className="h-5 w-5 text-purple-500" />;
-    if (type.includes('pdf')) return <FileText className="h-5 w-5 text-red-500" />;
-    return <File className="h-5 w-5 text-slate-500" />;
+    if (type.includes('image')) return <ImageIcon className="h-6 w-6 text-primary" />;
+    if (type.includes('video')) return <Video className="h-6 w-6 text-accent" />;
+    if (type.includes('pdf')) return <FileText className="h-6 w-6 text-destructive" />;
+    return <File className="h-6 w-6 text-muted-foreground" />;
   };
 
   return (
     <CaseLayout caseId={params.id} title="Evidence Center">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader className="bg-slate-50 border-b">
-              <CardTitle className="text-lg">Upload Evidence</CardTitle>
-              <CardDescription>Add documents, photos, or audio relevant to your case.</CardDescription>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardHeader className="bg-muted/10 border-b border-border/50">
+              <CardTitle className="text-lg font-serif">Upload Evidence</CardTitle>
+              <CardDescription className="text-xs">Add documents, photos, or audio relevant to your case.</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <form onSubmit={handleUpload} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="file">Select File</Label>
-                  <Input id="file" name="file" type="file" required />
+              <form onSubmit={handleUpload} className="space-y-5">
+                <div className="space-y-2.5">
+                  <Label htmlFor="file" className="text-sm font-bold text-foreground">Select File</Label>
+                  <Input id="file" name="file" type="file" required className="bg-background/50 file:text-foreground file:font-medium" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
-                  <Input id="description" name="description" placeholder="Brief note about this file" />
+                <div className="space-y-2.5">
+                  <Label htmlFor="description" className="text-sm font-bold text-foreground">Description (Optional)</Label>
+                  <Input id="description" name="description" placeholder="Brief note about this file" className="bg-background/50" />
                 </div>
-                <Button type="submit" disabled={isUploading} className="w-full">
+                <Button type="submit" disabled={isUploading} className="w-full shadow-md">
                   <UploadCloud className="h-4 w-4 mr-2" />
                   {isUploading ? "Uploading..." : "Upload Evidence"}
                 </Button>
@@ -94,13 +94,16 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
-          <Card className="bg-blue-900 text-white border-none">
-            <CardContent className="p-6">
-              <h3 className="font-bold mb-2">Evidence Tips</h3>
-              <ul className="text-sm opacity-90 space-y-2 list-disc list-inside ml-2">
-                <li>Upload primary sources (contracts, emails, photos)</li>
-                <li>Label everything clearly</li>
-                <li>Our AI will attempt to extract key dates and facts from documents automatically.</li>
+          <Card className="bg-secondary/30 border-none relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <FileText className="w-24 h-24 text-secondary-foreground" />
+            </div>
+            <CardContent className="p-6 relative z-10">
+              <h3 className="font-serif font-bold text-lg mb-3 tracking-tight">Evidence Tips</h3>
+              <ul className="text-sm text-foreground/80 space-y-2 list-none">
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Upload primary sources (contracts, emails, photos)</li>
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Label everything clearly</li>
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Our AI will attempt to extract key dates and facts from documents automatically.</li>
               </ul>
             </CardContent>
           </Card>
@@ -109,48 +112,54 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
         <div className="lg:col-span-2 space-y-4">
           {isLoading ? (
             <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
             </div>
           ) : data?.length === 0 ? (
-            <Card className="border-dashed border-2 bg-slate-50">
-              <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-                <FileText className="h-12 w-12 text-slate-300 mb-4" />
-                <h3 className="text-lg font-bold text-slate-700">No Evidence Found</h3>
-                <p className="text-slate-500">Upload your first piece of evidence using the panel.</p>
+            <Card className="border-dashed border-2 bg-transparent">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="p-4 bg-muted/30 rounded-full mb-4">
+                  <FileText className="h-10 w-10 text-muted-foreground opacity-50" />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-foreground mb-1">No Evidence Found</h3>
+                <p className="text-sm text-muted-foreground">Upload your first piece of evidence using the panel.</p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {data?.map(item => (
-                <Card key={item.id} className="overflow-hidden hover:border-primary/40 transition-colors">
-                  <div className="flex">
-                    <div className="bg-slate-100 p-4 flex items-center justify-center border-r">
-                      {getIconForType(item.fileType)}
+                <Card key={item.id} className="overflow-hidden hover:border-primary/50 transition-colors group bg-card/50 backdrop-blur-sm">
+                  <div className="flex flex-col sm:flex-row">
+                    <div className="bg-muted/10 p-6 flex items-center justify-center sm:border-r border-b sm:border-b-0 border-border/50">
+                      <div className="p-3 bg-background rounded-xl shadow-sm">
+                        {getIconForType(item.fileType)}
+                      </div>
                     </div>
-                    <div className="p-4 flex-1">
-                      <div className="flex justify-between items-start">
+                    <div className="p-5 flex-1 flex flex-col justify-center">
+                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h4 className="font-semibold text-slate-900">{item.fileName}</h4>
-                          <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                          <h4 className="font-serif font-bold text-lg text-foreground line-clamp-1">{item.fileName}</h4>
+                          <div className="text-[10px] text-muted-foreground mt-1 font-mono uppercase tracking-wider flex items-center gap-2">
                             <span>{(item.fileSize / 1024).toFixed(1)} KB</span>
                             <span>•</span>
-                            <span>{format(new Date(item.uploadedAt), 'PPp')}</span>
+                            <span>{format(new Date(item.uploadedAt), 'MMM dd, yyyy HH:mm')}</span>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8">
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                       
                       {item.description && (
-                        <p className="text-sm mt-3 text-slate-700">{item.description}</p>
+                        <p className="text-sm text-foreground/80 mt-2">{item.description}</p>
                       )}
 
                       {item.aiSummary && (
-                        <div className="mt-4 bg-blue-50 border border-blue-100 rounded-md p-3">
-                          <h5 className="text-xs font-bold text-blue-900 mb-1 uppercase tracking-wider">AI Analysis</h5>
-                          <p className="text-sm text-blue-800">{item.aiSummary}</p>
+                        <div className="mt-4 bg-primary/5 border border-primary/10 rounded-lg p-3.5">
+                          <h5 className="text-[10px] font-bold text-primary mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                            <Sparkles className="h-3 w-3" /> AI Analysis
+                          </h5>
+                          <p className="text-sm text-foreground/80 leading-relaxed">{item.aiSummary}</p>
                         </div>
                       )}
                     </div>

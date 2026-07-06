@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { toast } from "sonner";
+import { Download, Save, Scale } from "lucide-react";
 
 export default function CaseIfp({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
@@ -73,48 +73,49 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
   if (isLoading) {
     return (
       <CaseLayout caseId={params.id} title="Fee Waiver (IFP)">
-        <Skeleton className="h-[500px] w-full" />
+        <Skeleton className="h-[600px] w-full" />
       </CaseLayout>
     );
   }
 
   return (
     <CaseLayout caseId={params.id} title="In Forma Pauperis (Fee Waiver)">
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         <div className="xl:col-span-1 space-y-6">
-          <Card className="bg-primary text-primary-foreground border-none">
+          <Card className="bg-primary text-primary-foreground border-none shadow-lg shadow-primary/20">
             <CardContent className="p-6">
-              <h3 className="font-serif font-bold text-lg mb-2">Filing Fees</h3>
-              <p className="text-sm opacity-90 leading-relaxed mb-4">
+              <Scale className="h-8 w-8 mb-4 opacity-80" />
+              <h3 className="font-serif font-bold text-xl mb-3 tracking-tight">Filing Fees</h3>
+              <p className="text-sm text-primary-foreground/90 leading-relaxed mb-5">
                 Filing a federal lawsuit costs $400+. If you cannot afford this, you can ask the court to waive the fee by filing an Application to Proceed In Forma Pauperis (IFP).
               </p>
-              <ul className="text-sm opacity-90 space-y-2 list-disc list-inside ml-2">
-                <li>You must declare all income truthfully under penalty of perjury.</li>
-                <li>The judge will review this before allowing your case to proceed.</li>
+              <ul className="text-sm text-primary-foreground/80 space-y-3 list-none border-t border-primary-foreground/20 pt-5">
+                <li className="flex gap-2 items-start"><span className="text-primary-foreground/50 font-bold">1.</span> Declare all income truthfully under penalty of perjury.</li>
+                <li className="flex gap-2 items-start"><span className="text-primary-foreground/50 font-bold">2.</span> The judge will review this before allowing your case to proceed.</li>
               </ul>
             </CardContent>
           </Card>
         </div>
 
         <div className="xl:col-span-3">
-          <Card>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <CardHeader className="bg-slate-50/50 border-b">
-                  <CardTitle className="font-serif text-xl">Financial Declaration</CardTitle>
-                  <CardDescription>Fill out your financial details to generate Form AO-239 (Long Form) or AO-240 (Short Form).</CardDescription>
+                <CardHeader className="bg-muted/10 border-b border-border/50">
+                  <CardTitle className="font-serif text-2xl">Financial Declaration</CardTitle>
+                  <CardDescription className="text-sm">Fill out your financial details to generate Form AO-239 (Long Form) or AO-240 (Short Form).</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6 pt-6">
+                <CardContent className="space-y-8 pt-8">
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField
                       control={form.control}
                       name="monthlyIncome"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total Monthly Income ($)</FormLabel>
+                          <FormLabel className="text-base font-bold text-foreground">Total Monthly Income ($)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" className="h-11 bg-background/50 font-mono text-base" {...field} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -125,9 +126,9 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                       name="monthlyExpenses"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total Monthly Expenses ($)</FormLabel>
+                          <FormLabel className="text-base font-bold text-foreground">Total Monthly Expenses ($)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" className="h-11 bg-background/50 font-mono text-base" {...field} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -138,9 +139,9 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                       name="dependents"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Number of Dependents</FormLabel>
+                          <FormLabel className="text-base font-bold text-foreground">Number of Dependents</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" className="h-11 bg-background/50 font-mono text-base" {...field} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -151,26 +152,27 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                       name="totalDebts"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total Debts ($)</FormLabel>
+                          <FormLabel className="text-base font-bold text-foreground">Total Debts ($)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" className="h-11 bg-background/50 font-mono text-base" {...field} />
                           </FormControl>
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-border/50">
                     <FormField
                       control={form.control}
                       name="employed"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+                        <FormItem className="flex flex-row items-start space-x-4 space-y-0 p-4 border border-border/50 rounded-xl bg-background/30">
                           <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1" />
                           </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Are you currently employed?</FormLabel>
+                          <div className="space-y-1.5 leading-none">
+                            <FormLabel className="text-base font-bold text-foreground cursor-pointer">Currently employed?</FormLabel>
+                            <p className="text-sm text-muted-foreground">Check if you receive wages.</p>
                           </div>
                         </FormItem>
                       )}
@@ -180,13 +182,13 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                       control={form.control}
                       name="receivingBenefits"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+                        <FormItem className="flex flex-row items-start space-x-4 space-y-0 p-4 border border-border/50 rounded-xl bg-background/30">
                           <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1" />
                           </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Receiving government benefits?</FormLabel>
-                            <p className="text-xs text-slate-500 mt-1">E.g., SSI, SNAP, Medicaid</p>
+                          <div className="space-y-1.5 leading-none">
+                            <FormLabel className="text-base font-bold text-foreground cursor-pointer">Receiving government benefits?</FormLabel>
+                            <p className="text-sm text-muted-foreground">E.g., SSI, SNAP, Medicaid</p>
                           </div>
                         </FormItem>
                       )}
@@ -198,9 +200,9 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                     name="assets"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Major Assets</FormLabel>
+                        <FormLabel className="text-base font-bold text-foreground">Major Assets</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Cash, bank accounts, real estate, valuable vehicles..." {...field} />
+                          <Textarea className="min-h-[100px] bg-background/50" placeholder="Cash, bank accounts, real estate, valuable vehicles..." {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -211,22 +213,24 @@ export default function CaseIfp({ params }: { params: { id: string } }) {
                     name="hardshipStatement"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Statement of Hardship</FormLabel>
+                        <FormLabel className="text-base font-bold text-foreground">Statement of Hardship</FormLabel>
                         <FormControl>
-                          <Textarea className="h-24" placeholder="Briefly explain why paying the fee would be an undue hardship..." {...field} />
+                          <Textarea className="min-h-[120px] bg-background/50" placeholder="Briefly explain why paying the fee would be an undue hardship..." {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
 
                 </CardContent>
-                <CardFooter className="bg-slate-50 border-t flex justify-end gap-4 p-4">
+                <CardFooter className="bg-muted/10 border-t border-border/50 flex justify-end gap-4 p-6">
                   {data?.generatedText && (
-                    <Button type="button" variant="outline">
-                      Download AO-239 PDF
+                    <Button type="button" variant="outline" className="min-h-10 font-bold border-primary/30 text-primary hover:bg-primary/10">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download AO-239
                     </Button>
                   )}
-                  <Button type="submit" disabled={saveIfp.isPending}>
+                  <Button type="submit" disabled={saveIfp.isPending} className="px-8 min-h-10 font-bold shadow-lg shadow-primary/20">
+                    <Save className="w-4 h-4 mr-2" />
                     {saveIfp.isPending ? "Saving..." : "Save Financial Data"}
                   </Button>
                 </CardFooter>

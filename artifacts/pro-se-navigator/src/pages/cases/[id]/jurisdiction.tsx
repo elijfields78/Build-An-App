@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { useForm, Controller } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { toast } from "sonner";
-import { Sparkles, Loader2, BookOpen, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Sparkles, Loader2, BookOpen, CheckCircle2 } from "lucide-react";
 
 type JurisdictionSuggestions = {
   storyFound: boolean;
@@ -27,10 +26,10 @@ function SuggestionChip({ label, onApply }: { label: string; onApply: () => void
     <button
       type="button"
       onClick={onApply}
-      className="group w-full text-left text-xs px-3 py-2 rounded-md border border-indigo-100 bg-indigo-50 text-indigo-900 hover:bg-indigo-100 hover:border-indigo-300 transition-colors flex items-start gap-2"
+      className="group w-full text-left text-xs px-3.5 py-2.5 rounded-lg border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10 hover:border-primary/40 transition-colors flex items-start gap-2.5 shadow-sm"
     >
-      <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-indigo-400 group-hover:text-indigo-600 flex-shrink-0" />
-      <span className="leading-snug">{label}</span>
+      <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary/60 group-hover:text-primary flex-shrink-0 transition-colors" />
+      <span className="leading-relaxed font-medium">{label}</span>
     </button>
   );
 }
@@ -65,43 +64,45 @@ function SuggestionsPanel({
   }, [caseId]);
 
   return (
-    <Card className="border-indigo-200 bg-gradient-to-b from-indigo-50 to-white overflow-hidden">
-      <CardHeader className="pb-3 pt-4 px-4 border-b border-indigo-100">
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="h-4 w-4 text-white" />
+    <Card className="border-primary/20 bg-card/80 backdrop-blur-md overflow-hidden relative shadow-lg shadow-primary/5">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40" />
+      <CardHeader className="pb-3 pt-5 px-5 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-sm font-bold text-indigo-900">AI Suggestions</CardTitle>
-            <CardDescription className="text-xs text-indigo-600">Based on your Story Builder</CardDescription>
+            <CardTitle className="text-base font-serif font-bold text-foreground">AI Suggestions</CardTitle>
+            <CardDescription className="text-[10px] uppercase font-bold tracking-wider text-primary/80 mt-0.5">Based on your Story</CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-5 space-y-5">
         {loading ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs text-indigo-500">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs font-medium text-primary">
+              <Loader2 className="h-4 w-4 animate-spin" />
               Analyzing your story…
             </div>
-            <Skeleton className="h-10 w-full bg-indigo-100/60" />
-            <Skeleton className="h-10 w-full bg-indigo-100/60" />
-            <Skeleton className="h-10 w-full bg-indigo-100/60" />
+            <Skeleton className="h-12 w-full bg-primary/10" />
+            <Skeleton className="h-12 w-full bg-primary/10" />
           </div>
         ) : !suggestions?.storyFound ? (
-          <div className="flex flex-col items-center text-center gap-2 py-3">
-            <BookOpen className="h-8 w-8 text-indigo-200" />
-            <p className="text-xs text-indigo-600 font-medium">Complete your Story Builder first</p>
-            <p className="text-xs text-slate-500">Once you've told us what happened, AI will suggest the right jurisdiction fields for your case.</p>
+          <div className="flex flex-col items-center text-center gap-3 py-6">
+            <div className="p-4 bg-muted/30 rounded-full">
+              <BookOpen className="h-8 w-8 text-muted-foreground opacity-50" />
+            </div>
+            <p className="text-sm text-foreground font-bold font-serif">Complete Story Builder First</p>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-[250px]">Once you've told us what happened, AI will suggest the right jurisdiction fields for your case.</p>
           </div>
         ) : (
-          <>
+          <div className="space-y-5">
             {suggestions.federalOrState && (
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Court Type</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Court Type</p>
                 <SuggestionChip
-                  label={`${suggestions.federalOrState.recommendation === "federal" ? "→ Federal Court" : suggestions.federalOrState.recommendation === "state" ? "→ State Court" : "→ Uncertain"} — ${suggestions.federalOrState.reason}`}
+                  label={`${suggestions.federalOrState.recommendation === "federal" ? "Federal Court" : suggestions.federalOrState.recommendation === "state" ? "State Court" : "Uncertain"} — ${suggestions.federalOrState.reason}`}
                   onApply={() => onApply("federalOrState", suggestions.federalOrState!.recommendation)}
                 />
               </div>
@@ -109,8 +110,8 @@ function SuggestionsPanel({
 
             {suggestions.subjectMatterBasis && suggestions.subjectMatterBasis.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Subject Matter Basis</p>
-                <div className="space-y-1.5">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Subject Matter Basis</p>
+                <div className="space-y-2">
                   {suggestions.subjectMatterBasis.map((s, i) => (
                     <SuggestionChip key={i} label={s} onApply={() => onApply("subjectMatterJurisdiction", s)} />
                   ))}
@@ -120,8 +121,8 @@ function SuggestionsPanel({
 
             {suggestions.venue && suggestions.venue.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Venue</p>
-                <div className="space-y-1.5">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Venue</p>
+                <div className="space-y-2">
                   {suggestions.venue.map((s, i) => (
                     <SuggestionChip key={i} label={s} onApply={() => onApply("venue", s)} />
                   ))}
@@ -131,8 +132,8 @@ function SuggestionsPanel({
 
             {suggestions.statuteOfLimitations && suggestions.statuteOfLimitations.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Statute of Limitations</p>
-                <div className="space-y-1.5">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Statute of Limitations</p>
+                <div className="space-y-2">
                   {suggestions.statuteOfLimitations.map((s, i) => (
                     <SuggestionChip key={i} label={s} onApply={() => onApply("statuteOfLimitations", s)} />
                   ))}
@@ -140,10 +141,10 @@ function SuggestionsPanel({
               </div>
             )}
 
-            <p className="text-[10px] text-indigo-400 italic border-t border-indigo-100 pt-3">
+            <p className="text-[10px] text-muted-foreground italic border-t border-border/50 pt-4 mt-2">
               Click any suggestion to apply it to the form. Always verify with a licensed attorney.
             </p>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -192,32 +193,32 @@ export default function CaseJurisdiction({ params }: { params: { id: string } })
 
   if (isLoading) return (
     <CaseLayout caseId={params.id} title="Jurisdiction Analysis">
-      <Skeleton className="h-[400px] w-full" />
+      <Skeleton className="h-[600px] w-full" />
     </CaseLayout>
   );
 
   return (
     <CaseLayout caseId={params.id} title="Claim & Jurisdiction Analyzer">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <CardHeader className="bg-slate-50/50 border-b">
-                  <CardTitle className="font-serif">Jurisdictional Requirements</CardTitle>
-                  <CardDescription>A court must have power over the subject matter and the parties to hear a case.</CardDescription>
+                <CardHeader className="bg-muted/10 border-b border-border/50">
+                  <CardTitle className="font-serif text-2xl">Jurisdictional Requirements</CardTitle>
+                  <CardDescription className="text-sm">A court must have power over the subject matter and the parties to hear a case.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6 pt-6">
+                <CardContent className="space-y-8 pt-8">
 
                   <FormField
                     control={form.control}
                     name="federalOrState"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold text-slate-800">Federal or State Court?</FormLabel>
+                        <FormLabel className="text-base font-bold text-foreground">Federal or State Court?</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-background/50 h-11">
                               <SelectValue placeholder="Select court system" />
                             </SelectTrigger>
                           </FormControl>
@@ -236,10 +237,10 @@ export default function CaseJurisdiction({ params }: { params: { id: string } })
                     name="subjectMatterJurisdiction"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold text-slate-800">Subject Matter Basis</FormLabel>
-                        <p className="text-sm text-slate-500 mb-2">Why does this specific court have the right to hear this case? (e.g., "Breach of contract under state law", "Federal Question - Civil Rights Act")</p>
+                        <FormLabel className="text-base font-bold text-foreground">Subject Matter Basis</FormLabel>
+                        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">Why does this specific court have the right to hear this case? (e.g., "Breach of contract under state law", "Federal Question - Civil Rights Act")</p>
                         <FormControl>
-                          <Textarea className="h-24" {...field} />
+                          <Textarea className="h-28 bg-background/50" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -250,10 +251,10 @@ export default function CaseJurisdiction({ params }: { params: { id: string } })
                     name="venue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold text-slate-800">Venue (Geographic Location)</FormLabel>
-                        <p className="text-sm text-slate-500 mb-2">Why are you filing in this specific county or district? (e.g., "Defendant lives here", "The incident occurred here")</p>
+                        <FormLabel className="text-base font-bold text-foreground">Venue (Geographic Location)</FormLabel>
+                        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">Why are you filing in this specific county or district? (e.g., "Defendant lives here", "The incident occurred here")</p>
                         <FormControl>
-                          <Textarea className="h-24" {...field} />
+                          <Textarea className="h-28 bg-background/50" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -264,18 +265,18 @@ export default function CaseJurisdiction({ params }: { params: { id: string } })
                     name="statuteOfLimitations"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold text-slate-800">Statute of Limitations</FormLabel>
-                        <p className="text-sm text-slate-500 mb-2">How much time do you have to file this type of claim, and when did the clock start?</p>
+                        <FormLabel className="text-base font-bold text-foreground">Statute of Limitations</FormLabel>
+                        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">How much time do you have to file this type of claim, and when did the clock start?</p>
                         <FormControl>
-                          <Textarea className="h-24" {...field} />
+                          <Textarea className="h-28 bg-background/50" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
 
                 </CardContent>
-                <CardFooter className="bg-slate-50 border-t flex justify-end p-4">
-                  <Button type="submit" disabled={saveJurisdiction.isPending}>
+                <CardFooter className="bg-muted/10 border-t border-border/50 flex justify-end p-6">
+                  <Button type="submit" disabled={saveJurisdiction.isPending} className="px-8 min-h-10 font-bold shadow-lg">
                     {saveJurisdiction.isPending ? "Saving..." : "Save Jurisdiction Data"}
                   </Button>
                 </CardFooter>
@@ -287,27 +288,29 @@ export default function CaseJurisdiction({ params }: { params: { id: string } })
         <div className="space-y-6">
           <SuggestionsPanel caseId={id} onApply={handleApplySuggestion} />
 
-          <Card className="bg-blue-900 text-white border-none">
+          <Card className="bg-secondary/30 border-none">
             <CardContent className="p-6">
-              <h3 className="font-bold mb-2">Why this matters</h3>
-              <p className="text-sm opacity-90 leading-relaxed mb-4">
+              <h3 className="font-serif font-bold text-lg mb-3 tracking-tight">Why this matters</h3>
+              <p className="text-sm text-foreground/80 leading-relaxed mb-4">
                 If you file in the wrong court, your case can be dismissed immediately, even if you are entirely right on the facts.
               </p>
-              <ul className="text-sm opacity-90 space-y-2 list-disc list-inside ml-2">
-                <li>Federal courts have strict limits on what they can hear.</li>
-                <li>Small claims courts have monetary limits.</li>
-                <li>You generally must file where the defendant lives or where the event happened.</li>
+              <ul className="text-sm text-foreground/80 space-y-2 list-none">
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Federal courts have strict limits</li>
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Small claims have monetary caps</li>
+                <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Must file where defendant lives or event occurred</li>
               </ul>
             </CardContent>
           </Card>
 
           {data?.aiAnalysis && (
-            <Card className="border-primary/20 bg-blue-50/50">
-              <CardHeader>
-                <CardTitle className="text-sm uppercase tracking-wider text-blue-800">AI Analysis</CardTitle>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5" /> AI Analysis
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-blue-900">{data.aiAnalysis}</p>
+                <p className="text-sm text-foreground/90 leading-relaxed">{data.aiAnalysis}</p>
               </CardContent>
             </Card>
           )}

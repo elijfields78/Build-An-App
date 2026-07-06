@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Target } from "lucide-react";
 
 export default function CaseTasks({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
@@ -26,24 +27,27 @@ export default function CaseTasks({ params }: { params: { id: string } }) {
 
   if (isLoading) return (
     <CaseLayout caseId={params.id} title="Filing Roadmap">
-      <Skeleton className="h-[400px] w-full" />
+      <Skeleton className="h-[500px] w-full max-w-4xl mx-auto" />
     </CaseLayout>
   );
 
   return (
     <CaseLayout caseId={params.id} title="Filing Roadmap">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-10">
         
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="p-6">
-            <h3 className="font-serif font-bold text-lg mb-2">Procedural Discipline</h3>
-            <p className="text-sm opacity-90 leading-relaxed">
+        <Card className="bg-primary/5 border-primary/20 relative overflow-hidden shadow-md shadow-black/5">
+          <div className="absolute top-0 right-0 p-6 opacity-5">
+            <Target className="w-24 h-24 text-primary" />
+          </div>
+          <CardContent className="p-8 relative z-10">
+            <h3 className="font-serif font-bold text-2xl mb-3 tracking-tight text-primary">Procedural Discipline</h3>
+            <p className="text-sm text-foreground/80 leading-relaxed max-w-2xl">
               Litigation is a highly structured process. Follow the steps in order. Missing a step like "Service of Process" can result in immediate dismissal regardless of the merits of your case.
             </p>
           </CardContent>
         </Card>
 
-        <div className="space-y-8">
+        <div className="space-y-10 pl-2">
           {phases.map(phase => {
             const phaseTasks = tasks?.filter(t => t.phase === phase) || [];
             if (phaseTasks.length === 0) return null;
@@ -53,41 +57,56 @@ export default function CaseTasks({ params }: { params: { id: string } }) {
 
             return (
               <div key={phase} className="relative">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 
-                    ${isPhaseComplete ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                <div className="flex items-center gap-5 mb-5 relative">
+                  {/* Vertical connector line */}
+                  <div className={`absolute top-8 left-4 bottom-[-40px] w-px -ml-px
+                    ${isPhaseComplete ? 'bg-primary' : 'bg-border'}`} 
+                  />
+                  
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 transition-colors shadow-sm
+                    ${isPhaseComplete ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-muted text-muted-foreground border border-border'}`}>
                     {completedCount === phaseTasks.length ? '✓' : ''}
                   </div>
-                  <h3 className="text-xl font-serif font-bold capitalize text-slate-800">{phase.replace('-', ' ')}</h3>
-                  <div className="flex-1 h-px bg-slate-200 ml-4" />
+                  <h3 className="text-2xl font-serif font-bold capitalize text-foreground tracking-tight">{phase.replace('-', ' ')}</h3>
+                  <div className="flex-1 h-px bg-border/50 ml-4 hidden sm:block" />
+                  <div className="font-mono text-xs font-bold text-muted-foreground uppercase tracking-wider bg-background px-2 py-1 rounded border border-border/50">
+                    {completedCount} / {phaseTasks.length}
+                  </div>
                 </div>
                 
-                <Card className={`ml-4 pl-4 border-l-2 rounded-l-none border-t-0 border-r-0 border-b-0 shadow-none
-                  ${isPhaseComplete ? 'border-l-green-500' : 'border-l-slate-200'}`}>
-                  <CardContent className="p-0 space-y-1">
-                    {phaseTasks.sort((a,b) => a.sortOrder - b.sortOrder).map(task => (
-                      <div key={task.id} className="flex items-start space-x-3 p-3 hover:bg-slate-50 rounded-md transition-colors">
-                        <Checkbox 
-                          id={`task-${task.id}`} 
-                          checked={task.completed}
-                          onCheckedChange={() => handleToggle(task.id, task.completed)}
-                          className="mt-1 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                        />
-                        <div className="grid gap-1.5 leading-none">
-                          <label 
-                            htmlFor={`task-${task.id}`}
-                            className={`text-sm font-medium leading-none cursor-pointer ${task.completed ? 'text-slate-500 line-through' : 'text-slate-900'}`}
-                          >
-                            {task.title}
-                          </label>
-                          {task.description && (
-                            <p className={`text-sm ${task.completed ? 'text-slate-400' : 'text-slate-500'}`}>
-                              {task.description}
-                            </p>
-                          )}
+                <Card className={`ml-10 bg-card/50 backdrop-blur-sm border-border/50 shadow-sm transition-colors
+                  ${isPhaseComplete ? 'border-primary/30 bg-primary/5' : ''}`}>
+                  <CardContent className="p-0">
+                    <div className="divide-y divide-border/50">
+                      {phaseTasks.sort((a,b) => a.sortOrder - b.sortOrder).map(task => (
+                        <div key={task.id} className="flex items-start space-x-4 p-5 hover:bg-accent/30 transition-colors group">
+                          <Checkbox 
+                            id={`task-${task.id}`} 
+                            checked={task.completed}
+                            onCheckedChange={() => handleToggle(task.id, task.completed)}
+                            className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <div className="grid gap-1.5 leading-none flex-1">
+                            <label 
+                              htmlFor={`task-${task.id}`}
+                              className={`text-base font-medium leading-relaxed cursor-pointer transition-colors ${task.completed ? 'text-muted-foreground line-through opacity-70' : 'text-foreground'}`}
+                            >
+                              {task.title}
+                            </label>
+                            {task.description && (
+                              <p className={`text-sm leading-relaxed mt-1 transition-colors ${task.completed ? 'text-muted-foreground opacity-50 line-through' : 'text-foreground/70'}`}>
+                                {task.description}
+                              </p>
+                            )}
+                            {task.dueDate && !task.completed && (
+                              <div className="mt-2 font-mono text-[10px] font-bold uppercase tracking-widest text-destructive bg-destructive/10 w-fit px-2 py-1 rounded">
+                                Due: {task.dueDate}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
