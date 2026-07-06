@@ -10,6 +10,7 @@ import {
 } from "./middlewares/clerkProxyMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { WebhookHandlers } from "./lib/webhookHandlers";
 
 const app: Express = express();
 
@@ -36,6 +37,25 @@ app.use(
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 app.use(cors({ credentials: true, origin: true }));
+
+// ── Stripe webhook MUST come before express.json() ────────────────────────────
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) return res.status(400).json({ error: "Missing stripe-signature" });
+    const sig = Array.isArray(signature) ? signature[0] : signature;
+    try {
+      await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+      return res.status(200).json({ received: true });
+    } catch (err: any) {
+      logger.error({ err }, "Stripe webhook error");
+      return res.status(400).json({ error: "Webhook processing error" });
+    }
+  }
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

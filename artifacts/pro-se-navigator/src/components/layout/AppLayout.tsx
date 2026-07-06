@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useClerk } from "@clerk/react";
-import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X } from "lucide-react";
+import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useBillingStatus } from "@/hooks/useBillingStatus";
+
+const TIER_LABELS: Record<string, { label: string; color: string }> = {
+  free: { label: "Free", color: "bg-slate-600 text-slate-200" },
+  advocate: { label: "Advocate", color: "bg-primary text-white" },
+  warroom: { label: "War Room", color: "bg-amber-600 text-white" },
+};
 
 export function AppLayout({ children, title }: { children: React.ReactNode; title?: string }) {
   const [location] = useLocation();
   const { signOut } = useClerk();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { tier } = useBillingStatus();
 
   const navLinks = [
     {
@@ -35,6 +44,8 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
       active: location.startsWith("/assistant"),
     },
   ];
+
+  const tierInfo = TIER_LABELS[tier] ?? TIER_LABELS.free;
 
   const SidebarContent = () => (
     <>
@@ -72,7 +83,37 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
         ))}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border space-y-2">
+        {/* Plan badge + upgrade link */}
+        <Link
+          href="/pricing"
+          onClick={() => setSidebarOpen(false)}
+          className={`flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            location === "/pricing"
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "text-slate-300 hover:bg-sidebar-accent hover:text-white"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4 shrink-0" />
+            Billing & Plans
+          </span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${tierInfo.color}`}>
+            {tierInfo.label}
+          </span>
+        </Link>
+
+        {tier === "free" && (
+          <Link
+            href="/pricing"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold text-amber-300 hover:text-amber-100 hover:bg-sidebar-accent transition-colors"
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Upgrade for full access
+          </Link>
+        )}
+
         <Button
           variant="ghost"
           className="w-full justify-start text-slate-300 hover:text-white hover:bg-sidebar-accent"

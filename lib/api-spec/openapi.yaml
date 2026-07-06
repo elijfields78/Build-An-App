@@ -31,6 +31,8 @@ tags:
     description: Dashboard summary
   - name: openai
     description: OpenAI AI chat operations
+  - name: billing
+    description: Subscription billing and plans
 
 paths:
   /healthz:
@@ -641,6 +643,67 @@ paths:
           description: SSE stream of research answer
           content:
             text/event-stream: {}
+
+  # ── Billing ────────────────────────────────────────────────
+  /billing/status:
+    get:
+      operationId: getBillingStatus
+      tags: [billing]
+      summary: Get current user billing tier and subscription info
+      responses:
+        "200":
+          description: Billing status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingStatus"
+
+  /billing/plans:
+    get:
+      operationId: getBillingPlans
+      tags: [billing]
+      summary: Get available subscription plans
+      responses:
+        "200":
+          description: Available plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BillingPlan"
+
+  /billing/checkout:
+    post:
+      operationId: createCheckoutSession
+      tags: [billing]
+      summary: Create a Stripe checkout session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+      responses:
+        "200":
+          description: Checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutResponse"
+
+  /billing/portal:
+    post:
+      operationId: createPortalSession
+      tags: [billing]
+      summary: Create a Stripe customer portal session
+      responses:
+        "200":
+          description: Portal URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalResponse"
 
   # ── OpenAI Conversations ───────────────────────────────────
   /openai/conversations:
@@ -1469,3 +1532,88 @@ components:
           type: string
       required:
         - error
+
+    BillingStatus:
+      type: object
+      properties:
+        tier:
+          type: string
+          description: "free | advocate | warroom"
+        stripeCustomerId:
+          type: ["string", "null"]
+        subscription:
+          oneOf:
+            - type: "null"
+            - type: object
+              properties:
+                id:
+                  type: string
+                status:
+                  type: string
+                productName:
+                  type: string
+                currentPeriodEnd:
+                  type: ["string", "null"]
+              required:
+                - id
+                - status
+                - productName
+      required:
+        - tier
+
+    BillingPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        metadata:
+          type: object
+          additionalProperties: true
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              unitAmount:
+                type: ["integer", "null"]
+              currency:
+                type: string
+              recurring:
+                type: object
+                additionalProperties: true
+            required:
+              - id
+      required:
+        - id
+        - name
+        - prices
+
+    CheckoutRequest:
+      type: object
+      properties:
+        priceId:
+          type: string
+      required:
+        - priceId
+
+    CheckoutResponse:
+      type: object
+      properties:
+        url:
+          type: ["string", "null"]
+      required:
+        - url
+
+    PortalResponse:
+      type: object
+      properties:
+        url:
+          type: string
+      required:
+        - url

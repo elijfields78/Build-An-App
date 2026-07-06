@@ -699,6 +699,59 @@ export const AskResearchResponse = zod.unknown()
 
 
 /**
+ * @summary Get current user billing tier and subscription info
+ */
+export const GetBillingStatusResponse = zod.object({
+  "tier": zod.string().describe('free | advocate | warroom'),
+  "stripeCustomerId": zod.string().nullish(),
+  "subscription": zod.union([zod.null(),zod.object({
+  "id": zod.string(),
+  "status": zod.string(),
+  "productName": zod.string(),
+  "currentPeriodEnd": zod.string().nullish()
+})]).optional()
+})
+
+
+/**
+ * @summary Get available subscription plans
+ */
+export const GetBillingPlansResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).optional(),
+  "prices": zod.array(zod.object({
+  "id": zod.string(),
+  "unitAmount": zod.number().nullish(),
+  "currency": zod.string().optional(),
+  "recurring": zod.record(zod.string(), zod.unknown()).optional()
+}))
+})
+export const GetBillingPlansResponse = zod.array(GetBillingPlansResponseItem)
+
+
+/**
+ * @summary Create a Stripe checkout session
+ */
+export const CreateCheckoutSessionBody = zod.object({
+  "priceId": zod.string()
+})
+
+export const CreateCheckoutSessionResponse = zod.object({
+  "url": zod.string().nullable()
+})
+
+
+/**
+ * @summary Create a Stripe customer portal session
+ */
+export const CreatePortalSessionResponse = zod.object({
+  "url": zod.string()
+})
+
+
+/**
  * @summary List all AI assistant conversations
  */
 export const ListOpenaiConversationsResponseItem = zod.object({

@@ -391,3 +391,53 @@ export interface OpenaiError {
   error: string;
 }
 
+export type BillingStatusSubscription = {
+  id: string;
+  status: string;
+  productName: string;
+  /** @nullable */
+  currentPeriodEnd?: string | null;
+} | null;
+
+export interface BillingStatus {
+  /** free | advocate | warroom */
+  tier: string;
+  /** @nullable */
+  stripeCustomerId?: string | null;
+  subscription?: BillingStatusSubscription;
+}
+
+export type BillingPlanMetadata = { [key: string]: unknown };
+
+export type BillingPlanPricesItemRecurring = { [key: string]: unknown };
+
+export type BillingPlanPricesItem = {
+  id: string;
+  /** @nullable */
+  unitAmount?: number | null;
+  currency?: string;
+  recurring?: BillingPlanPricesItemRecurring;
+};
+
+export interface BillingPlan {
+  id: string;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  metadata?: BillingPlanMetadata;
+  prices: BillingPlanPricesItem[];
+}
+
+export interface CheckoutRequest {
+  priceId: string;
+}
+
+export interface CheckoutResponse {
+  /** @nullable */
+  url: string | null;
+}
+
+export interface PortalResponse {
+  url: string;
+}
+

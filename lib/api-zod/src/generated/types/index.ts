@@ -7,6 +7,12 @@
  */
 
 export * from './apiError';
+export * from './billingPlan';
+export * from './billingPlanMetadata';
+export * from './billingPlanPricesItem';
+export * from './billingPlanPricesItemRecurring';
+export * from './billingStatus';
+export * from './billingStatusSubscription';
 export * from './case';
 export * from './caseDetail';
 export * from './caseInput';
@@ -16,6 +22,8 @@ export * from './caseStoryInput';
 export * from './caseTask';
 export * from './caseTaskUpdate';
 export * from './caseUpdate';
+export * from './checkoutRequest';
+export * from './checkoutResponse';
 export * from './complaint';
 export * from './courtDocument';
 export * from './dashboardSummary';
@@ -32,6 +40,7 @@ export * from './openaiConversationWithMessages';
 export * from './openaiError';
 export * from './openaiMessage';
 export * from './openaiMessageInput';
+export * from './portalResponse';
 export * from './researchMessage';
 export * from './researchQuestion';
 export * from './researchSession';
