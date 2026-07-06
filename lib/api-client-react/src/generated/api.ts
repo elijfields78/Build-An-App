@@ -36,6 +36,7 @@ import type {
   Complaint,
   CourtDocument,
   DashboardSummary,
+  DisputeLetterInput,
   EvidenceItem,
   HealthStatus,
   IfpApplication,
@@ -1652,6 +1653,77 @@ export const useGenerateComplaint = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getGenerateComplaintMutationOptions(options));
+    }
+
+export const getGenerateDisputeLetterUrl = (id: number,) => {
+
+
+
+
+  return `/api/cases/${id}/dispute-letter/generate`
+}
+
+/**
+ * @summary Generate an AI-drafted dispute or demand letter (metered, free tier limited)
+ */
+export const generateDisputeLetter = async (id: number,
+    disputeLetterInput: DisputeLetterInput, options?: RequestInit): Promise<unknown> => {
+
+  return customFetch<unknown>(getGenerateDisputeLetterUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(disputeLetterInput)
+  }
+);}
+
+
+
+
+export const getGenerateDisputeLetterMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDisputeLetter>>, TError,{id: number;data: BodyType<DisputeLetterInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDisputeLetter>>, TError,{id: number;data: BodyType<DisputeLetterInput>}, TContext> => {
+
+const mutationKey = ['generateDisputeLetter'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDisputeLetter>>, {id: number;data: BodyType<DisputeLetterInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  generateDisputeLetter(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateDisputeLetterMutationResult = NonNullable<Awaited<ReturnType<typeof generateDisputeLetter>>>
+    export type GenerateDisputeLetterMutationBody = BodyType<DisputeLetterInput>
+    export type GenerateDisputeLetterMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Generate an AI-drafted dispute or demand letter (metered, free tier limited)
+ */
+export const useGenerateDisputeLetter = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDisputeLetter>>, TError,{id: number;data: BodyType<DisputeLetterInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateDisputeLetter>>,
+        TError,
+        {id: number;data: BodyType<DisputeLetterInput>},
+        TContext
+      > => {
+      return useMutation(getGenerateDisputeLetterMutationOptions(options));
     }
 
 export const getListTasksUrl = (id: number,) => {

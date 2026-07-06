@@ -571,6 +571,20 @@ export const GenerateComplaintResponse = zod.unknown()
 
 
 /**
+ * @summary Generate an AI-drafted dispute or demand letter (metered, free tier limited)
+ */
+export const GenerateDisputeLetterParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GenerateDisputeLetterBody = zod.object({
+  "letterType": zod.string().describe('demand | cease-and-desist | dispute')
+})
+
+export const GenerateDisputeLetterResponse = zod.string()
+
+
+/**
  * @summary List filing checklist tasks for a case
  */
 export const ListTasksParams = zod.object({

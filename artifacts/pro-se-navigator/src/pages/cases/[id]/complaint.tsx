@@ -29,10 +29,6 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
   const isFreeTier = tier === "free";
 
   const handleGenerate = async () => {
-    if (isFreeTier) {
-      setUpgradeOpen(true);
-      return;
-    }
     if (!confirm("This will overwrite your existing draft. Ensure you have completed the Story Builder and Jurisdiction Analyzer first. Continue?")) return;
     
     setIsGenerating(true);
@@ -78,6 +74,14 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleExport = () => {
+    if (isFreeTier) {
+      setUpgradeOpen(true);
+      return;
+    }
+    toast.info("PDF export coming soon.");
+  };
+
   const textToDisplay = isGenerating ? streamedText : data?.complaintText;
 
   if (isLoading) {
@@ -94,7 +98,7 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
         requiredTier="advocate"
-        featureName="Complaint Generator"
+        featureName="Complaint Export"
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -108,9 +112,9 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
                 <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
                   <div className="flex items-center gap-1.5 font-bold mb-1">
                     <Lock className="h-3 w-3" />
-                    Advocate Plan Required
+                    Free Plan — Export Locked
                   </div>
-                  <p>AI complaint generation requires the Advocate plan. Upgrade to draft, edit, and export your verified complaint.</p>
+                  <p>You can generate and review your complaint draft. Upgrade to Advocate to export a clean, watermark-free PDF.</p>
                 </div>
               )}
 
@@ -119,21 +123,11 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
                   <Label>Jury Demand</Label>
                   <p className="text-xs text-slate-500">Request a trial by jury</p>
                 </div>
-                <Switch checked={juryDemand} onCheckedChange={setJuryDemand} disabled={isGenerating || isFreeTier} />
+                <Switch checked={juryDemand} onCheckedChange={setJuryDemand} disabled={isGenerating} />
               </div>
               
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full"
-                variant={isFreeTier ? "outline" : "default"}
-              >
-                {isFreeTier ? (
-                  <>
-                    <Zap className="h-4 w-4 mr-2 text-amber-500" />
-                    Upgrade to Generate
-                  </>
-                ) : isGenerating ? (
+              <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+                {isGenerating ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Generating...
@@ -170,16 +164,17 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
                 <CardTitle className="font-serif text-lg">Document Preview</CardTitle>
                 <CardDescription>
                   {data?.status === 'draft' ? 'Draft Mode' : data?.status === 'final' ? 'Finalized' : 'Not generated yet'}
+                  {isFreeTier && textToDisplay && " — watermarked preview"}
                 </CardDescription>
               </div>
               {textToDisplay && (
                 isFreeTier ? (
-                  <Button variant="outline" size="sm" onClick={() => setUpgradeOpen(true)} className="text-amber-700 border-amber-300 hover:bg-amber-50">
+                  <Button variant="outline" size="sm" onClick={handleExport} className="text-amber-700 border-amber-300 hover:bg-amber-50">
                     <Lock className="h-4 w-4 mr-2" />
                     Upgrade to Export
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleExport}>
                     <Download className="h-4 w-4 mr-2" />
                     Export PDF
                   </Button>
@@ -196,8 +191,8 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
                   />
                   {isFreeTier && (
                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                      <div className="rotate-[-30deg] text-slate-200 text-5xl font-black tracking-widest opacity-30 select-none whitespace-nowrap">
-                        FREE PLAN — UPGRADE TO EXPORT
+                      <div className="rotate-[-30deg] text-slate-200 text-4xl font-black tracking-widest opacity-25 select-none whitespace-nowrap">
+                        DRAFT — UPGRADE TO EXPORT CLEAN
                       </div>
                     </div>
                   )}
@@ -205,17 +200,8 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-8 text-center">
                   <FileText className="h-12 w-12 mb-4 text-slate-300" />
-                  <p className="font-semibold text-slate-700">No complaint generated</p>
-                  <p className="text-sm max-w-sm mt-2">
-                    {isFreeTier
-                      ? "Upgrade to the Advocate plan to generate your AI-drafted verified complaint."
-                      : "Complete the Story Builder and Jurisdiction Analyzer, then click \"Draft Complaint\" to generate your initial pleading."}
-                  </p>
-                  {isFreeTier && (
-                    <Button size="sm" className="mt-4 bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setUpgradeOpen(true)}>
-                      <Zap className="h-3.5 w-3.5 mr-1.5" /> Upgrade to Advocate
-                    </Button>
-                  )}
+                  <p className="font-semibold text-slate-700">No complaint generated yet</p>
+                  <p className="text-sm max-w-sm mt-2">Complete the Story Builder and Jurisdiction Analyzer, then click "Draft Complaint" to generate your initial pleading.</p>
                 </div>
               )}
             </CardContent>
@@ -223,7 +209,11 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
               <CardFooter className="border-t bg-amber-50 py-2 px-4">
                 <p className="text-xs text-amber-700 flex items-center gap-1.5">
                   <Lock className="h-3 w-3" />
-                  Watermarked preview — <button onClick={() => setUpgradeOpen(true)} className="underline font-semibold hover:text-amber-900">upgrade to Advocate</button> to export a clean PDF.
+                  Watermarked draft preview —{" "}
+                  <button onClick={() => setUpgradeOpen(true)} className="underline font-semibold hover:text-amber-900">
+                    upgrade to Advocate
+                  </button>{" "}
+                  to export a clean, court-ready PDF.
                 </p>
               </CardFooter>
             )}

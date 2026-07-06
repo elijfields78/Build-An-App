@@ -28,6 +28,7 @@ export * from './checkoutResponse';
 export * from './complaint';
 export * from './courtDocument';
 export * from './dashboardSummary';
+export * from './disputeLetterInput';
 export * from './evidenceItem';
 export * from './healthStatus';
 export * from './ifpApplication';

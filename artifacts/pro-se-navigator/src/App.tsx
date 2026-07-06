@@ -19,6 +19,7 @@ import CaseIfp from "@/pages/cases/[id]/ifp";
 import CaseComplaint from "@/pages/cases/[id]/complaint";
 import CaseCourtDocuments from "@/pages/cases/[id]/court-documents";
 import CaseTasks from "@/pages/cases/[id]/tasks";
+import CaseDisputeLetter from "@/pages/cases/[id]/dispute-letter";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
@@ -156,6 +157,7 @@ function Router() {
       <ProtectedRoute path="/cases/:id/complaint" component={CaseComplaint} />
       <ProtectedRoute path="/cases/:id/court-documents" component={CaseCourtDocuments} />
       <ProtectedRoute path="/cases/:id/tasks" component={CaseTasks} />
+      <ProtectedRoute path="/cases/:id/dispute-letter" component={CaseDisputeLetter} />
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />

@@ -498,6 +498,36 @@ paths:
           content:
             text/event-stream: {}
 
+  # ── Dispute / Demand Letters ───────────────────────────────
+  /cases/{id}/dispute-letter/generate:
+    post:
+      operationId: generateDisputeLetter
+      tags: [complaint]
+      summary: Generate an AI-drafted dispute or demand letter (metered, free tier limited)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisputeLetterInput"
+      responses:
+        "200":
+          description: SSE stream of generated letter text
+          content:
+            text/plain: {}
+        "403":
+          description: Usage limit reached or tier insufficient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
   # ── Tasks / Checklist ─────────────────────────────────────
   /cases/{id}/tasks:
     get:
@@ -826,6 +856,15 @@ paths:
 
 components:
   schemas:
+    DisputeLetterInput:
+      type: object
+      properties:
+        letterType:
+          type: string
+          description: "demand | cease-and-desist | dispute"
+      required:
+        - letterType
+
     HealthStatus:
       type: object
       properties:

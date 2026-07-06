@@ -931,6 +931,87 @@ Write in proper legal format. Use numbered paragraphs. Be factual, professional,
   }
 });
 
+// ── Dispute / Demand Letters ───────────────────────────────────────────────────
+
+router.post("/cases/:id/dispute-letter/generate", checkUsage("dispute_letter"), async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const caseId = parseInt(req.params.id as string);
+    const c = await getOwnedCase(userId, caseId);
+    if (!c) return res.status(404).json({ error: "Case not found" });
+
+    const { letterType = "demand" } = req.body as { letterType?: string };
+
+    const [story] = await db.select().from(caseStoriesTable).where(eq(caseStoriesTable.caseId, caseId));
+
+    const typeLabel = letterType === "cease-and-desist"
+      ? "Cease and Desist Letter"
+      : letterType === "dispute"
+      ? "Formal Dispute Letter"
+      : "Demand Letter";
+
+    const prompt = `Draft a professional ${typeLabel} for a pro se litigant. Use the case details below.
+
+CASE: ${c.title}
+OPPOSING PARTY: ${c.opposingParty || "Unknown Respondent"}
+${story ? `
+FACTS:
+- Who harmed you: ${story.whoHarmedYou || ""}
+- What happened: ${story.whatHappened || ""}
+- When: ${story.whenHappened || ""}
+- Where: ${story.whereHappened || ""}
+- Rights violated: ${story.rightsViolated || ""}
+- Damages: ${story.damagesSuffered || ""}
+- Desired outcome: ${story.desiredOutcome || ""}
+` : "No story data provided."}
+
+Write a formal ${typeLabel} including:
+1. Date and parties (use [YOUR NAME], [YOUR ADDRESS], [DATE] placeholders)
+2. Re: line describing the subject
+3. Opening paragraph stating the purpose
+4. Factual background (numbered)
+5. Legal basis for the demand/dispute (cite applicable laws if relevant)
+6. Specific demand or relief sought with a clear deadline
+7. Consequences if demand is not met
+8. Professional closing
+9. Disclaimer: "This letter was prepared with the assistance of Pro Se Litigation Navigator. Review with a licensed attorney before sending."
+
+Use professional, formal tone. Be factual and specific.`;
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+
+    const stream = await openai.chat.completions.create({
+      model: "gpt-5.4",
+      max_completion_tokens: 4096,
+      messages: [
+        { role: "system", content: "You are a professional legal document drafter assisting pro se litigants. Write clearly, formally, and factually." },
+        { role: "user", content: prompt },
+      ],
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) res.write(text);
+    }
+
+    res.end();
+    return;
+  } catch (err) {
+    logger.error({ err }, "Error generating dispute letter");
+    if (!res.headersSent) {
+      return res.status(500).json({ error: "Failed to generate dispute letter" });
+    }
+    res.end();
+    return;
+  }
+});
+
 // ── Tasks ─────────────────────────────────────────────────────────────────────
 
 router.get("/cases/:id/tasks", async (req, res) => {

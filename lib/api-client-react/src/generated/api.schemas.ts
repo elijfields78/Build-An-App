@@ -5,6 +5,11 @@
  * Pro Se Litigation Navigator API
  * OpenAPI spec version: 0.1.0
  */
+export interface DisputeLetterInput {
+  /** demand | cease-and-desist | dispute */
+  letterType: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
