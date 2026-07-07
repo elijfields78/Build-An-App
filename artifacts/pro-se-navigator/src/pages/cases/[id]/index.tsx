@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileCheck2, FileSearch, Gavel, Handshake, LibraryBig, Scale, ShieldAlert, UploadCloud } from "lucide-react";
+import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileCheck2, FileSearch, FileStack, Gavel, Handshake, LibraryBig, Scale, ShieldAlert, UploadCloud } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 
@@ -17,6 +17,7 @@ const commandModules = [
   { label: "Admin Process", href: "administrative", icon: ClipboardList, copy: "Notice, opportunity to cure, intent to escalate, delivery proof, and record building.", tone: "text-blue-400" },
   { label: "Case Law Bank", href: "case-law", icon: Scale, copy: "Authority storage, citation verification, proposition matching, and draft safety.", tone: "text-purple-400" },
   { label: "Draft Review", href: "draft-review", icon: FileCheck2, copy: "Preflight complaint, motion, answer, response, affidavit, and demand drafts.", tone: "text-emerald-500" },
+  { label: "Document Packets", href: "documents", icon: FileStack, copy: "Assemble demand, complaint, motion response, evidence, and settlement packets.", tone: "text-purple-400" },
   { label: "Settlement Leverage", href: "settlement", icon: Handshake, copy: "Proof strength, damages, demand history, trial readiness, and resolution posture.", tone: "text-emerald-500" },
   { label: "Agent Orchestrator", href: "agents", icon: Gavel, copy: "Mock Procedure, Case Law, Evidence, Deadline, Draft Review, and Settlement agents.", tone: "text-primary" },
 ];
