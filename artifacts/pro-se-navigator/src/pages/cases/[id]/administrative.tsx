@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, ClipboardCopy, FileText, MailCheck, ShieldCheck, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { usePersistentState } from "@/hooks/usePersistentState";
 
 const matterFits = [
   "Credit reporting / FCRA disputes",
@@ -70,7 +71,7 @@ function buildLetters(form: AdminForm) {
 }
 
 export default function CaseAdministrativeProcess({ params }: { params: { id: string } }) {
-  const [form, setForm] = useState<AdminForm>(defaultForm);
+  const [form, setForm] = usePersistentState<AdminForm>(`case:${params.id}:administrative-process`, defaultForm);
   const letters = useMemo(() => buildLetters(form), [form]);
 
   const updateField = (field: keyof AdminForm, value: string) => {

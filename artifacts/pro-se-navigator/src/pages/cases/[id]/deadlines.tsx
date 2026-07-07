@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CalendarClock, Clock3, FileWarning, Gavel, Plus, Trash2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
+import { usePersistentState } from "@/hooks/usePersistentState";
 
 type DocketRow = {
   id: string;
@@ -79,9 +80,9 @@ function statusForDeadline(deadline: Date | null) {
 }
 
 export default function CaseDocketDeadlines({ params }: { params: { id: string } }) {
-  const [docketRows, setDocketRows] = useState<DocketRow[]>(initialRows);
-  const [form, setForm] = useState<DocketForm>(defaultForm);
-  const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [docketRows, setDocketRows] = usePersistentState<DocketRow[]>(`case:${params.id}:docket-rows`, initialRows);
+  const [form, setForm] = usePersistentState<DocketForm>(`case:${params.id}:docket-form`, defaultForm);
+  const [checks, setChecks] = usePersistentState<Record<string, boolean>>(`case:${params.id}:docket-checks`, {});
 
   const reviewedCount = useMemo(() => readinessItems.filter((item) => checks[item.id]).length, [checks]);
   const computedRows = useMemo(

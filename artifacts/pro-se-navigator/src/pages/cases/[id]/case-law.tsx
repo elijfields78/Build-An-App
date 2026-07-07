@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CaseLayout } from "@/components/layout/CaseLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpenCheck, ExternalLink, Link2, ShieldAlert, Sparkles, Scale, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { usePersistentState } from "@/hooks/usePersistentState";
 
 type VerificationStatus = "Verified" | "Partially verified" | "Research lead only" | "Unverified — do not file";
 type AuthorityStrength = "Binding" | "Persuasive" | "Background" | "Unknown";
@@ -87,8 +88,8 @@ const defaultForm: CitationForm = {
 };
 
 export default function CaseLawBank({ params }: { params: { id: string } }) {
-  const [citations, setCitations] = useState<Citation[]>(seedCitations);
-  const [form, setForm] = useState<CitationForm>(defaultForm);
+  const [citations, setCitations] = usePersistentState<Citation[]>(`case:${params.id}:case-law-bank`, seedCitations);
+  const [form, setForm] = usePersistentState<CitationForm>(`case:${params.id}:case-law-form`, defaultForm);
 
   const unverifiedCount = useMemo(
     () => citations.filter((citation) => citation.status !== "Verified").length,
