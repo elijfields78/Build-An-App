@@ -23,6 +23,11 @@ import CaseDisputeLetter from "@/pages/cases/[id]/dispute-letter";
 import CaseAdministrativeProcess from "@/pages/cases/[id]/administrative";
 import CaseLawBank from "@/pages/cases/[id]/case-law";
 import CaseDocketDeadlines from "@/pages/cases/[id]/deadlines";
+import CaseMemory from "@/pages/cases/[id]/memory";
+import ProceduralRiskEngine from "@/pages/cases/[id]/procedural-risk";
+import SettlementLeverageCenter from "@/pages/cases/[id]/settlement";
+import DraftReviewCenter from "@/pages/cases/[id]/draft-review";
+import AgentOrchestrator from "@/pages/cases/[id]/agents";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
@@ -212,6 +217,11 @@ function Router() {
       <ProtectedRoute path="/cases/:id/administrative" component={CaseAdministrativeProcess} />
       <ProtectedRoute path="/cases/:id/case-law" component={CaseLawBank} />
       <ProtectedRoute path="/cases/:id/deadlines" component={CaseDocketDeadlines} />
+      <ProtectedRoute path="/cases/:id/memory" component={CaseMemory} />
+      <ProtectedRoute path="/cases/:id/procedural-risk" component={ProceduralRiskEngine} />
+      <ProtectedRoute path="/cases/:id/settlement" component={SettlementLeverageCenter} />
+      <ProtectedRoute path="/cases/:id/draft-review" component={DraftReviewCenter} />
+      <ProtectedRoute path="/cases/:id/agents" component={AgentOrchestrator} />
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />

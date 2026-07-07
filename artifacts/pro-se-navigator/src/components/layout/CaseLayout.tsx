@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "./AppLayout";
-import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList } from "lucide-react";
+import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit, Handshake, Gavel } from "lucide-react";
 
 export function CaseLayout({ children, caseId, title }: { children: React.ReactNode; caseId: string; title: string }) {
   const [location] = useLocation();
@@ -12,16 +12,21 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
   const tabs = [
     { name: "Overview", href: `/cases/${caseId}`, icon: Info },
     { name: "Story", href: `/cases/${caseId}/story`, icon: FileText },
+    { name: "Memory", href: `/cases/${caseId}/memory`, icon: BrainCircuit },
     { name: "Evidence", href: `/cases/${caseId}/evidence`, icon: UploadCloud },
     { name: "Jurisdiction", href: `/cases/${caseId}/jurisdiction`, icon: Scale },
+    { name: "Risk", href: `/cases/${caseId}/procedural-risk`, icon: ShieldAlert },
     { name: "IFP", href: `/cases/${caseId}/ifp`, icon: Briefcase },
     { name: "Complaint", href: `/cases/${caseId}/complaint`, icon: FileSearch },
+    { name: "Draft Review", href: `/cases/${caseId}/draft-review`, icon: Gavel },
     { name: "Court Docs", href: `/cases/${caseId}/court-documents`, icon: ShieldAlert },
     { name: "Docket", href: `/cases/${caseId}/deadlines`, icon: CalendarClock },
     { name: "Tasks", href: `/cases/${caseId}/tasks`, icon: CheckSquare },
     { name: "Letters", href: `/cases/${caseId}/dispute-letter`, icon: Mail },
     { name: "Admin Process", href: `/cases/${caseId}/administrative`, icon: ClipboardList },
     { name: "Case Law", href: `/cases/${caseId}/case-law`, icon: BookOpenCheck },
+    { name: "Settlement", href: `/cases/${caseId}/settlement`, icon: Handshake },
+    { name: "Agents", href: `/cases/${caseId}/agents`, icon: BrainCircuit },
   ];
 
   return (
