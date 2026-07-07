@@ -44,6 +44,7 @@ import LitigationTimeline from "@/pages/cases/[id]/timeline";
 import DocumentAssemblyCenter from "@/pages/cases/[id]/documents";
 import ServiceDefaultCenter from "@/pages/cases/[id]/service";
 import DiscoveryCommandCenter from "@/pages/cases/[id]/discovery";
+import MotionOrderCockpit from "@/pages/cases/[id]/motions";
 
 type CasePageComponent = ComponentType<{ params: { id: string } }>;
 
@@ -76,8 +77,9 @@ const caseModuleDefinitions: CaseModule[] = [
   { slug: "deadlines", name: "Docket", icon: CalendarClock, component: CaseDocketDeadlines, group: "Deadlines & Risk", priority: 32 },
   { slug: "service", name: "Service", icon: UserCheck, component: ServiceDefaultCenter, group: "Deadlines & Risk", priority: 33 },
   { slug: "discovery", name: "Discovery", icon: FileSearch, component: DiscoveryCommandCenter, group: "Deadlines & Risk", priority: 34 },
-  { slug: "tasks", name: "Tasks", icon: CheckSquare, component: CaseTasks, group: "Deadlines & Risk", priority: 35 },
-  { slug: "ifp", name: "IFP", icon: Briefcase, component: CaseIfp, group: "Deadlines & Risk", priority: 36 },
+  { slug: "motions", name: "Motions", icon: Gavel, component: MotionOrderCockpit, group: "Deadlines & Risk", priority: 35 },
+  { slug: "tasks", name: "Tasks", icon: CheckSquare, component: CaseTasks, group: "Deadlines & Risk", priority: 36 },
+  { slug: "ifp", name: "IFP", icon: Briefcase, component: CaseIfp, group: "Deadlines & Risk", priority: 37 },
   { slug: "case-law", name: "Case Law", icon: BookOpenCheck, component: CaseLawBank, group: "Research & AI", priority: 40 },
   { slug: "agents", name: "Agents", icon: BrainCircuit, component: AgentOrchestrator, group: "Research & AI", priority: 41 },
   { slug: "settlement", name: "Settlement", icon: Handshake, component: SettlementLeverageCenter, group: "Resolution", priority: 50 },
