@@ -10,9 +10,19 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { FileText, Download, PlayCircle, Loader2, Lock, Zap, Scale } from "lucide-react";
+import { FileText, Download, PlayCircle, Loader2, Lock, Scale, ShieldCheck, BookOpenCheck, Gavel, AlertTriangle } from "lucide-react";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
+
+const preflightItems = [
+  "Jurisdiction and venue basis identified",
+  "Each defendant connected to specific facts",
+  "Facts mapped to each claim element",
+  "Relief/damages requested with support",
+  "Service/default timeline considered",
+  "Jury demand availability and deadline researched",
+  "Case law and citations verified before filing",
+];
 
 export default function CaseComplaint({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
@@ -25,6 +35,7 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedText, setStreamedText] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [preflight, setPreflight] = useState<Record<string, boolean>>({});
 
   const isFreeTier = tier === "free";
 
@@ -83,6 +94,7 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
   };
 
   const textToDisplay = isGenerating ? streamedText : data?.complaintText;
+  const preflightComplete = preflightItems.filter((item) => preflight[item]).length;
 
   if (isLoading) {
     return (
@@ -103,6 +115,30 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1 space-y-6">
+          <Card className="border-[#D4A843]/30 bg-[#D4A843]/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif flex items-center gap-2 text-lg">
+                <ShieldCheck className="h-5 w-5 text-[#D4A843]" /> Complaint Preflight
+              </CardTitle>
+              <CardDescription>
+                {preflightComplete} / {preflightItems.length} readiness issues reviewed before drafting.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {preflightItems.map((item) => (
+                <label key={item} className="flex items-start gap-3 rounded-md border border-border/60 bg-background/60 px-3 py-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!preflight[item]}
+                    onChange={() => setPreflight((current) => ({ ...current, [item]: !current[item] }))}
+                    className="mt-1"
+                  />
+                  <span className={preflight[item] ? "text-muted-foreground line-through" : "text-foreground"}>{item}</span>
+                </label>
+              ))}
+            </CardContent>
+          </Card>
+
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardHeader className="bg-muted/10 border-b border-border/50">
               <CardTitle className="text-lg font-serif">Generator Settings</CardTitle>
@@ -121,7 +157,7 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
               <div className="flex items-center justify-between p-4 border border-border/50 rounded-xl bg-background/30">
                 <div className="space-y-1">
                   <Label className="font-bold text-foreground text-sm">Jury Demand</Label>
-                  <p className="text-xs text-muted-foreground">Request a trial by jury</p>
+                  <p className="text-xs text-muted-foreground">Issue-spot jury availability, waiver, and timing</p>
                 </div>
                 <Switch checked={juryDemand} onCheckedChange={setJuryDemand} disabled={isGenerating} />
               </div>
@@ -154,6 +190,19 @@ export default function CaseComplaint({ params }: { params: { id: string } }) {
                 <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Remove facts you cannot prove</li>
                 <li className="flex gap-2 items-start"><span className="text-muted-foreground">—</span> Verify all citations</li>
               </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif flex items-center gap-2 text-lg">
+                <Gavel className="h-5 w-5 text-primary" /> Tactical Review
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex gap-2"><AlertTriangle className="h-4 w-4 text-[#D4A843] shrink-0 mt-0.5" /> Flag Rule 12 vulnerabilities before filing.</div>
+              <div className="flex gap-2"><BookOpenCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Attach verified authority only after citation review.</div>
+              <div className="flex gap-2"><ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" /> Preserve service and default-readiness facts after filing.</div>
             </CardContent>
           </Card>
         </div>
