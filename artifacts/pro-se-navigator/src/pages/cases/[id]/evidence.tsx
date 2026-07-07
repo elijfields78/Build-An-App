@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Trash2, FileText, UploadCloud, Eye, Image as ImageIcon, Video, File, Sparkles } from "lucide-react";
+import { Trash2, FileText, UploadCloud, Image as ImageIcon, Video, File, Sparkles, CheckCircle2, ShieldCheck, Link2 } from "lucide-react";
 import { format } from "date-fns";
 
 export default function CaseEvidence({ params }: { params: { id: string } }) {
@@ -19,6 +19,18 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
   const deleteItem = useDeleteEvidenceItem();
   const qc = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
+  const [proofChecks, setProofChecks] = useState<Record<string, boolean>>({});
+
+  const proofMap = [
+    "Fact supported by a document or witness",
+    "Date and timeline connection identified",
+    "Claim element supported by evidence",
+    "Damages or harm proof identified",
+    "Exhibit label / description ready",
+    "Source authenticity or origin noted",
+  ];
+
+  const proofReady = proofMap.filter((item) => proofChecks[item]).length;
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -107,9 +119,47 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
               </ul>
             </CardContent>
           </Card>
+
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif flex items-center gap-2 text-lg">
+                <ShieldCheck className="h-5 w-5 text-primary" /> Exhibit Readiness
+              </CardTitle>
+              <CardDescription>{proofReady} / {proofMap.length} proof-mapping issues reviewed.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {proofMap.map((item) => (
+                <label key={item} className="flex items-start gap-3 rounded-md border border-border/60 bg-background/60 px-3 py-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!proofChecks[item]}
+                    onChange={() => setProofChecks((current) => ({ ...current, [item]: !current[item] }))}
+                    className="mt-1"
+                  />
+                  <span className={proofChecks[item] ? "text-muted-foreground line-through" : "text-foreground"}>{item}</span>
+                </label>
+              ))}
+            </CardContent>
+          </Card>
         </div>
 
         <div className="lg:col-span-2 space-y-4">
+          <Card className="border-[#D4A843]/30 bg-[#D4A843]/5">
+            <CardContent className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Evidence items</div>
+                <div className="mt-1 text-3xl font-mono font-bold text-[#D4A843]">{data?.length ?? 0}</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Exhibit readiness</div>
+                <div className="mt-1 text-3xl font-mono font-bold text-primary">{proofReady}/{proofMap.length}</div>
+              </div>
+              <div className="text-sm text-muted-foreground leading-6 flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary shrink-0" /> Map every fact to evidence before drafting, discovery, summary judgment, or settlement packages.
+              </div>
+            </CardContent>
+          </Card>
+
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-32 w-full" />
@@ -153,6 +203,14 @@ export default function CaseEvidence({ params }: { params: { id: string } }) {
                       {item.description && (
                         <p className="text-sm text-foreground/80 mt-2">{item.description}</p>
                       )}
+
+                      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                        {["Fact support", "Timeline link", "Exhibit candidate"].map((tag) => (
+                          <div key={tag} className="rounded-md border border-border/60 bg-background/50 px-3 py-2 flex items-center gap-2">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> {tag}
+                          </div>
+                        ))}
+                      </div>
 
                       {item.aiSummary && (
                         <div className="mt-4 bg-primary/5 border border-primary/10 rounded-lg p-3.5">
