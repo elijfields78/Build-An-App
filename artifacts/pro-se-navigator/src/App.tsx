@@ -11,31 +11,11 @@ import { setAuthTokenGetter } from "@workspace/api-client-react";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import NewCase from "@/pages/cases/new";
-import CaseHome from "@/pages/cases/[id]";
-import CaseStory from "@/pages/cases/[id]/story";
-import CaseEvidence from "@/pages/cases/[id]/evidence";
-import CaseJurisdiction from "@/pages/cases/[id]/jurisdiction";
-import CaseIfp from "@/pages/cases/[id]/ifp";
-import CaseComplaint from "@/pages/cases/[id]/complaint";
-import CaseCourtDocuments from "@/pages/cases/[id]/court-documents";
-import CaseTasks from "@/pages/cases/[id]/tasks";
-import CaseDisputeLetter from "@/pages/cases/[id]/dispute-letter";
-import CaseAdministrativeProcess from "@/pages/cases/[id]/administrative";
-import CaseLawBank from "@/pages/cases/[id]/case-law";
-import CaseDocketDeadlines from "@/pages/cases/[id]/deadlines";
-import CaseMemory from "@/pages/cases/[id]/memory";
-import ProceduralRiskEngine from "@/pages/cases/[id]/procedural-risk";
-import SettlementLeverageCenter from "@/pages/cases/[id]/settlement";
-import DraftReviewCenter from "@/pages/cases/[id]/draft-review";
-import AgentOrchestrator from "@/pages/cases/[id]/agents";
-import LegalPlaybookCenter from "@/pages/cases/[id]/playbooks";
-import LitigationTimeline from "@/pages/cases/[id]/timeline";
-import DocumentAssemblyCenter from "@/pages/cases/[id]/documents";
-import ServiceDefaultCenter from "@/pages/cases/[id]/service";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
 import Affiliates from "@/pages/affiliates";
+import { caseModules, caseModuleRoutePath } from "@/lib/caseModules";
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
@@ -209,27 +189,9 @@ function Router() {
       
       <ProtectedRoute path="/dashboard" component={Dashboard} />
       <ProtectedRoute path="/cases/new" component={NewCase} />
-      <ProtectedRoute path="/cases/:id" component={CaseHome} />
-      <ProtectedRoute path="/cases/:id/story" component={CaseStory} />
-      <ProtectedRoute path="/cases/:id/evidence" component={CaseEvidence} />
-      <ProtectedRoute path="/cases/:id/jurisdiction" component={CaseJurisdiction} />
-      <ProtectedRoute path="/cases/:id/ifp" component={CaseIfp} />
-      <ProtectedRoute path="/cases/:id/complaint" component={CaseComplaint} />
-      <ProtectedRoute path="/cases/:id/court-documents" component={CaseCourtDocuments} />
-      <ProtectedRoute path="/cases/:id/tasks" component={CaseTasks} />
-      <ProtectedRoute path="/cases/:id/dispute-letter" component={CaseDisputeLetter} />
-      <ProtectedRoute path="/cases/:id/administrative" component={CaseAdministrativeProcess} />
-      <ProtectedRoute path="/cases/:id/case-law" component={CaseLawBank} />
-      <ProtectedRoute path="/cases/:id/deadlines" component={CaseDocketDeadlines} />
-      <ProtectedRoute path="/cases/:id/memory" component={CaseMemory} />
-      <ProtectedRoute path="/cases/:id/procedural-risk" component={ProceduralRiskEngine} />
-      <ProtectedRoute path="/cases/:id/settlement" component={SettlementLeverageCenter} />
-      <ProtectedRoute path="/cases/:id/draft-review" component={DraftReviewCenter} />
-      <ProtectedRoute path="/cases/:id/agents" component={AgentOrchestrator} />
-      <ProtectedRoute path="/cases/:id/playbooks" component={LegalPlaybookCenter} />
-      <ProtectedRoute path="/cases/:id/timeline" component={LitigationTimeline} />
-      <ProtectedRoute path="/cases/:id/documents" component={DocumentAssemblyCenter} />
-      <ProtectedRoute path="/cases/:id/service" component={ServiceDefaultCenter} />
+      {caseModules.map((module) => (
+        <ProtectedRoute key={module.slug || "overview"} path={caseModuleRoutePath(module.slug)} component={module.component} />
+      ))}
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />
