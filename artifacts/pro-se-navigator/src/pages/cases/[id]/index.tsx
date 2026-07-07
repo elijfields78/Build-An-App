@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CheckCircle2, ClipboardList, FileCheck2, FileSearch, Gavel, Handshake, Scale, ShieldAlert, UploadCloud } from "lucide-react";
+import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CheckCircle2, ClipboardList, FileCheck2, FileSearch, Gavel, Handshake, LibraryBig, Scale, ShieldAlert, UploadCloud } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 
 const commandModules = [
+  { label: "Legal Playbooks", href: "playbooks", icon: LibraryBig, copy: "Matter-specific workflows for FCRA, FDCPA, landlord-tenant, contracts, civil rights, appeals, and general civil.", tone: "text-[#D4A843]" },
   { label: "Case Memory", href: "memory", icon: BrainCircuit, copy: "Facts, timeline, evidence, authorities, drafts, and deadlines in one memory layer.", tone: "text-primary" },
   { label: "Procedural Risk", href: "procedural-risk", icon: ShieldAlert, copy: "Jurisdiction, venue, service, standing, SOL, exhaustion, Rule 12, and local-rule risks.", tone: "text-destructive" },
   { label: "Docket & Deadlines", href: "deadlines", icon: CalendarClock, copy: "Response windows, motion clocks, default-readiness signals, and docket activity.", tone: "text-[#D4A843]" },
