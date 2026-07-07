@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useListResearchSessions, useCreateResearchSession, useGetResearchSession, getGetResearchSessionQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
-import { BrainCircuit, BookOpen, Send, Loader2, Plus, Clock, ChevronLeft, X, Zap } from "lucide-react";
+import { BrainCircuit, BookOpen, Send, Loader2, Plus, Clock, X, Zap, ShieldCheck, Link2, SearchCheck, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,21 @@ import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
 import { MicButton } from "@/components/ui/mic-button";
+
+const researchModes = [
+  "Find verified case law",
+  "Check procedural rule",
+  "Compare facts to precedent",
+  "Build citation list",
+  "Flag unverified authority",
+];
+
+const sourceStandards = [
+  "CourtListener / official court source preferred",
+  "RECAP/PACER docket sources for filings",
+  "Separate research leads from verified authority",
+  "Do not place unverified case law into filing drafts",
+];
 
 export default function LegalResearch() {
   const { getToken } = useAuth();
@@ -244,6 +259,34 @@ export default function LegalResearch() {
           </div>
 
           <div className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-8" ref={scrollRef}>
+            <div className="max-w-4xl mx-auto rounded-2xl border border-primary/25 bg-primary/5 p-4 md:p-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                    <SearchCheck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-serif font-bold text-foreground">Perplexity-style legal research workflow</div>
+                    <p className="mt-1 text-xs md:text-sm leading-6 text-muted-foreground">
+                      Ask with a jurisdiction, claim type, procedural posture, and desired authority. Treat answers as research support until verified.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {researchModes.map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setInputValue(mode + ": ")}
+                      className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-left hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {sessionLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 text-primary animate-spin opacity-50" />
@@ -287,6 +330,19 @@ export default function LegalResearch() {
                         <div className="p-3 bg-muted/30 rounded-lg text-xs font-mono text-foreground/80 border border-border/30">"Statute of limitations for a written contract in California?"</div>
                         <div className="p-3 bg-muted/30 rounded-lg text-xs font-mono text-foreground/80 border border-border/30">"Elements of a negligence claim?"</div>
                         <div className="p-3 bg-muted/30 rounded-lg text-xs font-mono text-foreground/80 border border-border/30">"How do I serve a corporate defendant under FRCP Rule 4?"</div>
+                      </div>
+
+                      <div className="mt-6 rounded-xl border border-border/60 bg-background/60 p-4">
+                        <div className="flex items-center gap-2 font-bold text-foreground mb-3">
+                          <ShieldCheck className="h-4 w-4 text-primary" /> Source verification standards
+                        </div>
+                        <div className="grid gap-2">
+                          {sourceStandards.map((standard) => (
+                            <div key={standard} className="flex items-start gap-2 text-xs text-muted-foreground">
+                              <Link2 className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" /> {standard}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
