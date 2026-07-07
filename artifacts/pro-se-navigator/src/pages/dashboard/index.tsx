@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, BookOpen, MessageSquare } from "lucide-react";
+import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, BookOpen, MessageSquare, ClipboardList, BookOpenCheck, CalendarClock, ArrowRight, Sparkles } from "lucide-react";
 import { format, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
 
 // ---------- Radial Case Strength Gauge ----------
@@ -104,6 +104,82 @@ export default function Dashboard() {
   return (
     <AppLayout title="Command Center">
       <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+
+        {/* Pro Se Navigator OS Hero — intentionally visible checkpoint */}
+        <Card className="relative overflow-hidden border-primary/30 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.22),transparent_36%),linear-gradient(135deg,rgba(15,23,42,0.98),rgba(2,6,23,0.96))] text-white shadow-2xl shadow-primary/10">
+          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute bottom-0 left-1/3 h-32 w-32 rounded-full bg-[#D4A843]/20 blur-3xl" />
+          <CardContent className="relative z-10 p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div className="max-w-3xl">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+                    <Sparkles className="mr-2 h-3.5 w-3.5" /> Navigator OS v1B
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-[#D4A843]/40 bg-[#D4A843]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#D4A843]">
+                    Procedural intelligence layer
+                  </span>
+                </div>
+                <h1 className="font-serif text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+                  Litigation command center for pro se operators.
+                </h1>
+                <p className="mt-4 text-sm md:text-base leading-7 text-slate-300 max-w-2xl">
+                  The app is being upgraded from a document helper into a full litigation operating system: administrative process,
+                  docket/deadline intelligence, verified case-law workflows, procedural risk checks, and settlement-readiness structure.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 min-w-[260px]">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <div className="text-2xl font-mono font-bold text-[#D4A843]">03</div>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-400">new visible modules</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <div className="text-2xl font-mono font-bold text-primary">08</div>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-400">legal playbooks</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur col-span-2">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Current build focus</div>
+                  <div className="mt-1 font-serif text-lg text-white">Foundation → premium UI → agentic workflows</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div>
+          <div className="flex items-end justify-between gap-4 mb-4">
+            <div>
+              <h3 className="text-xl font-bold font-serif tracking-tight">New Litigation OS Modules</h3>
+              <p className="text-sm text-muted-foreground mt-1">Visible checkpoint: these modules are now part of the product surface.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { title: "Administrative Process", description: "Three-letter notice, cure, and escalation record builder.", icon: ClipboardList, href: data?.recentCases?.[0]?.id ? `/cases/${data.recentCases[0].id}/administrative` : "/cases/new" },
+              { title: "Docket & Deadlines", description: "Opposing response windows, default-readiness, PACER/RECAP import roadmap.", icon: CalendarClock, href: data?.recentCases?.[0]?.id ? `/cases/${data.recentCases[0].id}/deadlines` : "/cases/new" },
+              { title: "Case Law Bank", description: "Citation verification guardrails so fake case law never enters a filing draft.", icon: BookOpenCheck, href: data?.recentCases?.[0]?.id ? `/cases/${data.recentCases[0].id}/case-law` : "/cases/new" },
+            ].map((module) => {
+              const Icon = module.icon;
+              return (
+                <Link key={module.title} href={module.href}>
+                  <Card className="group h-full cursor-pointer border-primary/20 bg-card/80 hover:border-primary/60 hover:-translate-y-0.5 transition-all">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="rounded-xl bg-primary/10 p-3 text-primary">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="mt-5 font-serif font-bold text-lg">{module.title}</div>
+                      <p className="mt-2 text-sm text-muted-foreground leading-6">{module.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Top Section: Readiness Gauge + Next Deadline */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
