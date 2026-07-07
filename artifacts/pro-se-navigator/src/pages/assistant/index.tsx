@@ -3,12 +3,39 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useListOpenaiConversations, useCreateOpenaiConversation, useGetOpenaiConversation, getGetOpenaiConversationQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
-import { BrainCircuit, MessageSquare, Send, Loader2, Plus, Clock, ChevronLeft, X } from "lucide-react";
+import { BrainCircuit, MessageSquare, Send, Loader2, Plus, Clock, X, ShieldCheck, FileSearch, CalendarClock, BookOpenCheck, ClipboardList, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
 import { MicButton } from "@/components/ui/mic-button";
+
+const navigatorAgents = [
+  {
+    name: "Procedure Agent",
+    icon: CalendarClock,
+    prompt: "Help me identify procedural risks, response deadlines, and local-rule issues I should verify in my case.",
+    description: "Deadlines, Rule 12 pressure, default readiness, service, and docket events.",
+  },
+  {
+    name: "Case Law Agent",
+    icon: BookOpenCheck,
+    prompt: "Help me find authority for a legal proposition, but separate verified authority from research leads and warn me about citation risks.",
+    description: "Case law, citation verification, proposition matching, and source review.",
+  },
+  {
+    name: "Admin Process Agent",
+    icon: ClipboardList,
+    prompt: "Help me build a pre-litigation administrative process record with notice, opportunity to cure, and intent to escalate.",
+    description: "Notice, cure letters, delivery proof, and record preservation.",
+  },
+  {
+    name: "Draft Review Agent",
+    icon: FileSearch,
+    prompt: "Review this draft for missing facts, unsupported claims, procedural risks, and citations that need verification.",
+    description: "Complaint, motion, letter, and response review before escalation.",
+  },
+];
 
 export default function AiAssistant() {
   const { getToken } = useAuth();
@@ -219,6 +246,26 @@ export default function AiAssistant() {
           </div>
 
           <div className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 md:space-y-8" ref={scrollRef}>
+            <div className="max-w-4xl mx-auto rounded-2xl border border-[#D4A843]/25 bg-[#D4A843]/5 p-4 md:p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-[#D4A843]/15 p-2 text-[#D4A843]">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-serif font-bold text-foreground">Navigator agent surface</span>
+                    <span className="rounded-full border border-[#D4A843]/30 bg-[#D4A843]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#D4A843]">
+                      Legal information only
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs md:text-sm leading-6 text-muted-foreground">
+                    Use agents to organize procedure, deadlines, authority, and draft review. Verify all deadlines, court rules,
+                    facts, and citations before filing.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {activeConvLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 text-[#D4A843] animate-spin opacity-50" />
@@ -244,13 +291,34 @@ export default function AiAssistant() {
                       <BrainCircuit className="h-5 w-5" />
                     </div>
                     <div className="bg-card border border-border/50 rounded-2xl rounded-tl-sm p-6 text-sm text-foreground flex-1 shadow-sm leading-relaxed">
-                      <p className="font-serif font-bold text-lg mb-3">Hello. I am here to help you understand legal procedures and translate complex court documents into plain English.</p>
+                      <p className="font-serif font-bold text-lg mb-3 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-[#D4A843]" /> Litigation Navigator agents are standing by.
+                      </p>
                       <p className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground mb-3 mt-4">I can help you:</p>
                       <ul className="text-sm text-foreground/80 space-y-2 list-none">
                         <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Translate motions and orders into simple terms</li>
                         <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Explain the difference between pleadings and motions</li>
                         <li className="flex gap-2 items-start"><span className="text-[#D4A843]/50">—</span> Help you organize facts before using the Story Builder</li>
                       </ul>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
+                        {navigatorAgents.map((agent) => {
+                          const Icon = agent.icon;
+                          return (
+                            <button
+                              key={agent.name}
+                              type="button"
+                              onClick={() => setInputValue(agent.prompt)}
+                              className="text-left rounded-xl border border-border/60 bg-background/60 p-4 hover:border-[#D4A843]/50 hover:bg-[#D4A843]/5 transition-all group"
+                            >
+                              <div className="flex items-center gap-2 font-bold text-foreground">
+                                <Icon className="h-4 w-4 text-[#D4A843]" /> {agent.name}
+                              </div>
+                              <p className="mt-2 text-xs leading-5 text-muted-foreground">{agent.description}</p>
+                              <p className="mt-3 text-[10px] uppercase tracking-widest text-[#D4A843] opacity-0 group-hover:opacity-100 transition-opacity">Load prompt</p>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 )}
