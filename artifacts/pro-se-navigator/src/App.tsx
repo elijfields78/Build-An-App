@@ -20,6 +20,9 @@ import CaseComplaint from "@/pages/cases/[id]/complaint";
 import CaseCourtDocuments from "@/pages/cases/[id]/court-documents";
 import CaseTasks from "@/pages/cases/[id]/tasks";
 import CaseDisputeLetter from "@/pages/cases/[id]/dispute-letter";
+import CaseAdministrativeProcess from "@/pages/cases/[id]/administrative";
+import CaseLawBank from "@/pages/cases/[id]/case-law";
+import CaseDocketDeadlines from "@/pages/cases/[id]/deadlines";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
@@ -205,6 +208,9 @@ function Router() {
       <ProtectedRoute path="/cases/:id/court-documents" component={CaseCourtDocuments} />
       <ProtectedRoute path="/cases/:id/tasks" component={CaseTasks} />
       <ProtectedRoute path="/cases/:id/dispute-letter" component={CaseDisputeLetter} />
+      <ProtectedRoute path="/cases/:id/administrative" component={CaseAdministrativeProcess} />
+      <ProtectedRoute path="/cases/:id/case-law" component={CaseLawBank} />
+      <ProtectedRoute path="/cases/:id/deadlines" component={CaseDocketDeadlines} />
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />

@@ -4,7 +4,8 @@ import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, Clock, UploadCloud, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, UploadCloud, AlertCircle, ClipboardList, BookOpenCheck, CalendarClock, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import { format } from "date-fns";
 
 export default function CaseHome({ params }: { params: { id: string } }) {
@@ -105,6 +106,35 @@ export default function CaseHome({ params }: { params: { id: string } }) {
 
         {/* Sidebar Info */}
         <div className="space-y-6">
+          <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+            <CardHeader className="pb-3 border-b border-border/50">
+              <CardTitle className="text-xs font-bold uppercase tracking-widest text-primary">
+                Navigator Intelligence
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 divide-y divide-border/50">
+              {[
+                { label: "Admin Process", href: `/cases/${params.id}/administrative`, icon: ClipboardList, copy: "Build notice, cure, and escalation record." },
+                { label: "Docket & Deadlines", href: `/cases/${params.id}/deadlines`, icon: CalendarClock, copy: "Track response windows and procedural clocks." },
+                { label: "Case Law Bank", href: `/cases/${params.id}/case-law`, icon: BookOpenCheck, copy: "Verify authority before it reaches a draft." },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.href} href={item.href} className="group flex items-start gap-3 p-4 hover:bg-accent/40 transition-colors">
+                    <Icon className="h-4 w-4 mt-0.5 text-primary" />
+                    <div className="flex-1">
+                      <div className="font-bold text-sm flex items-center justify-between">
+                        {item.label}
+                        <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.copy}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </CardContent>
+          </Card>
+
           <Card className="bg-primary/5 border-primary/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5">
               <CheckCircle2 className="w-24 h-24 text-primary" />
