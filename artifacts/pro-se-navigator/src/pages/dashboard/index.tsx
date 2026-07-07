@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, BookOpen, MessageSquare, ClipboardList, BookOpenCheck, CalendarClock, ArrowRight, Sparkles } from "lucide-react";
+import { Briefcase, Calendar, FileText, Plus, AlertCircle, Clock, BookOpen, MessageSquare, ClipboardList, BookOpenCheck, CalendarClock, ArrowRight, Sparkles, Search, Activity, Zap } from "lucide-react";
 import { format, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
 
 // ---------- Radial Case Strength Gauge ----------
@@ -100,6 +100,24 @@ export default function Dashboard() {
     : 0;
 
   const nextDeadlineTask = data?.upcomingTasks?.find((t) => t.dueDate) ?? data?.upcomingTasks?.[0];
+  const activityFeed = [
+    ...(data?.recentCases?.slice(0, 4).map((c) => ({
+      id: `case-${c.id}`,
+      label: c.title,
+      meta: `${c.caseType} · ${c.status}`,
+      href: `/cases/${c.id}`,
+      date: c.updatedAt,
+      tone: "case",
+    })) ?? []),
+    ...(data?.upcomingTasks?.slice(0, 4).map((task) => ({
+      id: `task-${task.id}`,
+      label: task.title,
+      meta: task.phase,
+      href: `/cases/${task.caseId}/tasks`,
+      date: task.dueDate ?? new Date().toISOString(),
+      tone: "deadline",
+    })) ?? []),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6);
 
   return (
     <AppLayout title="Command Center">
@@ -169,7 +187,12 @@ export default function Dashboard() {
                         <div className="rounded-xl bg-primary/10 p-3 text-primary">
                           <Icon className="h-5 w-5" />
                         </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-500">
+                            Active
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       </div>
                       <div className="mt-5 font-serif font-bold text-lg">{module.title}</div>
                       <p className="mt-2 text-sm text-muted-foreground leading-6">{module.description}</p>
@@ -180,6 +203,35 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+
+        <Card className="border-border/60 bg-card/70 backdrop-blur">
+          <CardContent className="p-4 md:p-5">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-3 text-primary">
+                  <Search className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground font-bold">Command bar</div>
+                  <div className="font-serif text-lg font-bold">Jump into litigation workflows fast</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                {[
+                  { label: "New Case", href: "/cases/new" },
+                  { label: "Research", href: "/research" },
+                  { label: "Assistant", href: "/assistant" },
+                  { label: "Pricing", href: "/pricing" },
+                  { label: "First Case", href: data?.recentCases?.[0]?.id ? `/cases/${data.recentCases[0].id}` : "/cases/new" },
+                ].map((item) => (
+                  <Button key={item.label} variant="outline" size="sm" asChild className="justify-between">
+                    <Link href={item.href}>{item.label}<span className="ml-3 text-muted-foreground">↵</span></Link>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Top Section: Readiness Gauge + Next Deadline */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -413,6 +465,33 @@ export default function Dashboard() {
               <CardContent className="p-6 text-center text-sidebar-foreground">
                 <p className="font-serif italic opacity-80 text-sm">"Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat."</p>
                 <p className="text-[10px] font-mono uppercase tracking-widest mt-4 opacity-50 text-primary">Stay Focused</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20 bg-card/80">
+              <CardHeader className="pb-3 border-b border-border/50">
+                <CardTitle className="font-serif flex items-center gap-2 text-lg">
+                  <Activity className="h-5 w-5 text-primary" /> Live Activity Feed
+                </CardTitle>
+                <CardDescription>Recent case movement and upcoming operational pressure points.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {activityFeed.length === 0 ? (
+                  <div className="p-6 text-sm text-muted-foreground">No activity yet. Create a case to activate the command center.</div>
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {activityFeed.map((item) => (
+                      <Link key={item.id} href={item.href} className="flex items-start gap-3 p-4 hover:bg-accent/40 transition-colors group">
+                        <div className={`mt-1 h-2.5 w-2.5 rounded-full ${item.tone === "deadline" ? "bg-[#D4A843]" : "bg-primary"}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">{item.label}</div>
+                          <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">{item.meta}</div>
+                        </div>
+                        <Zap className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
