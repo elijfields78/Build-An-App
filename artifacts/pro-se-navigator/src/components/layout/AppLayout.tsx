@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth, useClerk } from "@clerk/react";
-import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings, Sun, Moon } from "lucide-react";
+import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings, Sun, Moon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
 import { useTheme } from "@/App";
@@ -25,6 +25,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
     { label: "New Case", href: "/cases/new", icon: Plus, active: location === "/cases/new" },
     { label: "Legal Research", href: "/research", icon: BookOpen, active: location.startsWith("/research") },
     { label: "AI Assistant", href: "/assistant", icon: MessageSquare, active: location.startsWith("/assistant") },
+    { label: "Affiliates", href: "/affiliates", icon: Users, active: location.startsWith("/affiliates") },
   ];
 
   const tierInfo = TIER_LABELS[tier] ?? TIER_LABELS.free;

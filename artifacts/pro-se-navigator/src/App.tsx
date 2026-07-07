@@ -26,6 +26,7 @@ import CaseDocketDeadlines from "@/pages/cases/[id]/deadlines";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
+import Affiliates from "@/pages/affiliates";
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
@@ -215,6 +216,7 @@ function Router() {
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />
       <ProtectedRoute path="/pricing" component={Pricing} />
+      <ProtectedRoute path="/affiliates" component={Affiliates} />
       
       <Route component={NotFound} />
     </Switch>

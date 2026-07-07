@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useGetBillingStatus, useGetBillingPlans, useCreateCheckoutSession, useCreatePortalSession } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, Zap, Star, Shield, ExternalLink } from "lucide-react";
+import { Loader2, Check, Zap, Star, Shield, ExternalLink, Users } from "lucide-react";
 import { toast } from "sonner";
 
 function formatPrice(unitAmount: number | null | undefined, currency: string) {
@@ -212,6 +213,21 @@ export default function PricingPage() {
         )}
 
         <div className="mt-20 border-t border-border/50 pt-12">
+          <div className="mb-12 rounded-3xl border border-[#D4A843]/30 bg-[#D4A843]/5 p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-[#D4A843] font-bold uppercase tracking-widest text-[10px] mb-2">
+                <Users className="h-4 w-4" /> Educators / coaches / community leaders
+              </div>
+              <h2 className="font-serif text-2xl font-bold">Earn recurring revenue by referring Pro Se Navigator.</h2>
+              <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+                If you teach credit, litigation, legal research, or self-representation, the affiliate center models recurring partner income and gives you a copy-paste pitch.
+              </p>
+            </div>
+            <Button asChild className="bg-[#D4A843] text-black hover:bg-[#b58f38]">
+              <Link href="/affiliates">Open Affiliate Center</Link>
+            </Button>
+          </div>
+
           <h2 className="text-2xl font-serif font-bold text-foreground mb-8 text-center">Frequently Asked Questions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-4xl mx-auto text-sm">
             {[
