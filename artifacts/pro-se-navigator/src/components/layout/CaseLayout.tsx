@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "./AppLayout";
-import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit, Handshake, Gavel, LibraryBig } from "lucide-react";
+import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit, Handshake, Gavel, LibraryBig, CalendarDays } from "lucide-react";
 
 export function CaseLayout({ children, caseId, title }: { children: React.ReactNode; caseId: string; title: string }) {
   const [location] = useLocation();
@@ -14,6 +14,7 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
     { name: "Playbooks", href: `/cases/${caseId}/playbooks`, icon: LibraryBig },
     { name: "Story", href: `/cases/${caseId}/story`, icon: FileText },
     { name: "Memory", href: `/cases/${caseId}/memory`, icon: BrainCircuit },
+    { name: "Timeline", href: `/cases/${caseId}/timeline`, icon: CalendarDays },
     { name: "Evidence", href: `/cases/${caseId}/evidence`, icon: UploadCloud },
     { name: "Jurisdiction", href: `/cases/${caseId}/jurisdiction`, icon: Scale },
     { name: "Risk", href: `/cases/${caseId}/procedural-risk`, icon: ShieldAlert },
