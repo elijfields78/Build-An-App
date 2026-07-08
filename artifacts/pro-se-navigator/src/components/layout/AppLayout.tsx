@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth, useClerk } from "@clerk/react";
-import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings, Sun, Moon, Users } from "lucide-react";
+import { LogOut, Briefcase, Plus, MessageSquare, Scale, Menu, BookOpen, X, CreditCard, Zap, Settings, Sun, Moon, Users, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBillingStatus } from "@/hooks/useBillingStatus";
-import { useTheme } from "@/App";
+import { useTheme } from "@//App";
+import { CommandPalette } from "./CommandPalette";
+import { useGetDashboard } from "@workspace/api-client-react";
 
 const TIER_LABELS: Record<string, { label: string; color: string }> = {
   free: { label: "Free", color: "bg-slate-700/50 text-slate-300 border-slate-600" },
@@ -19,6 +21,19 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { tier } = useBillingStatus();
   const { theme, setTheme } = useTheme();
+  const [commandOpen, setCommandOpen] = useState(false);
+  const { data: dashData } = useGetDashboard();
+
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const navLinks = [
     { label: "Dashboard", href: "/dashboard", icon: Briefcase, active: location === "/dashboard" },
@@ -128,6 +143,15 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
       </nav>
 
       <div className="p-4 border-t border-sidebar-border space-y-3">
+        <button
+          onClick={() => setCommandOpen(true)}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-slate-400 hover:text-white hover:bg-sidebar-accent border border-sidebar-border/50 transition-all"
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" />
+          <span>Search...</span>
+          <kbd className="ml-auto text-[10px] font-mono opacity-60">⌘K</kbd>
+        </button>
+
         <Link
           href="/pricing"
           onClick={() => setSidebarOpen(false)}
@@ -231,6 +255,8 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           </div>
         </main>
       </div>
+
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} cases={dashData?.recentCases ?? []} />
     </div>
   );
 }
