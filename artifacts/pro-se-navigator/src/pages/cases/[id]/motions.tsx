@@ -39,6 +39,7 @@ interface MotionItem {
   type: MotionType;
   title: string;
   movant: string;
+  caseNumberReference: string;
   dateFiled: string;
   responseDeadline: string;
   status: MotionStatus;
@@ -284,6 +285,15 @@ function MotionCard({
               />
             </div>
             <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Case / docket number reference</Label>
+              <Input
+                value={motion.caseNumberReference}
+                onChange={(e) => onUpdate({ ...motion, caseNumberReference: e.target.value })}
+                placeholder="e.g., ECF No. 12, Doc. 7, or 1:24-cv-00123"
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">Date filed / received</Label>
               <Input
                 type="date"
@@ -359,6 +369,7 @@ export default function MotionResponseCockpit({ params }: { params: { id: string
       type: "Motion to Dismiss (12(b)(6))",
       title: "",
       movant: "",
+      caseNumberReference: "",
       dateFiled: "",
       responseDeadline: "",
       status: "New",
@@ -399,6 +410,7 @@ export default function MotionResponseCockpit({ params }: { params: { id: string
           motionType: selectedMotion?.type ?? "motion",
           motionTitle: selectedMotion?.title ?? "",
           movant: selectedMotion?.movant ?? "",
+          caseNumberReference: selectedMotion?.caseNumberReference ?? "",
           keyFacts: selectedMotion?.keyFacts ?? "",
           customArgs,
         }),

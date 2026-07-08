@@ -1075,7 +1075,7 @@ router.post("/cases/:id/motions/draft", async (req, res) => {
     const c = await getOwnedCase(userId, caseId);
     if (!c) return res.status(404).json({ error: "Case not found" });
 
-    const { motionType, motionTitle, movant, keyFacts, customArgs } = req.body;
+    const { motionType, motionTitle, movant, caseNumberReference, keyFacts, customArgs } = req.body;
     if (!motionType && !customArgs) return res.status(400).json({ error: "motionType or customArgs required" });
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -1087,6 +1087,7 @@ router.post("/cases/:id/motions/draft", async (req, res) => {
       motionType && `Motion type: ${motionType}`,
       motionTitle && `Document title: ${motionTitle}`,
       movant && `Filed by: ${movant}`,
+      caseNumberReference && `Docket/ECF reference: ${caseNumberReference}`,
       keyFacts && `Key facts from tracker: ${keyFacts}`,
       customArgs && `Additional arguments: ${customArgs}`,
     ].filter(Boolean).join("\n");
