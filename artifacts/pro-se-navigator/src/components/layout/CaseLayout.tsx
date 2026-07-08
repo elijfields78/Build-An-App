@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "./AppLayout";
-import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit, Handshake, Gavel, LibraryBig, CalendarDays, FileStack } from "lucide-react";
+import { FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare, UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit, Handshake, Gavel, LibraryBig, CalendarDays, FileStack, Search } from "lucide-react";
 
 export function CaseLayout({ children, caseId, title }: { children: React.ReactNode; caseId: string; title: string }) {
   const [location] = useLocation();
@@ -22,6 +22,7 @@ export function CaseLayout({ children, caseId, title }: { children: React.ReactN
     { name: "Complaint", href: `/cases/${caseId}/complaint`, icon: FileSearch },
     { name: "Draft Review", href: `/cases/${caseId}/draft-review`, icon: Gavel },
     { name: "Packets", href: `/cases/${caseId}/documents`, icon: FileStack },
+    { name: "Discovery", href: `/cases/${caseId}/discovery`, icon: Search },
     { name: "Court Docs", href: `/cases/${caseId}/court-documents`, icon: ShieldAlert },
     { name: "Docket", href: `/cases/${caseId}/deadlines`, icon: CalendarClock },
     { name: "Tasks", href: `/cases/${caseId}/tasks`, icon: CheckSquare },

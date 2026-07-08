@@ -1065,4 +1065,56 @@ router.patch("/cases/:id/tasks/:tid", async (req, res) => {
   }
 });
 
+// Discovery AI draft — streaming
+router.post("/cases/:id/discovery/draft", async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const caseId = parseInt(req.params.id);
+    const c = await getOwnedCase(userId, caseId);
+    if (!c) return res.status(404).json({ error: "Case not found" });
+
+    const { type, description } = req.body;
+    if (!type || !description) return res.status(400).json({ error: "type and description are required" });
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+
+    const typeLabel: Record<string, string> = {
+      Interrogatory: "written interrogatory (Fed. R. Civ. P. 33)",
+      RFP: "request for production of documents (Fed. R. Civ. P. 34)",
+      RFA: "request for admission (Fed. R. Civ. P. 36)",
+      Deposition: "deposition notice (Fed. R. Civ. P. 30)",
+    };
+
+    const systemPrompt = `You are an experienced civil litigator helping a pro se plaintiff draft formal discovery requests. Draft a properly formatted ${typeLabel[type] ?? type} based on the user's description. Use formal legal language, number the request, include proper preamble and definitions where appropriate, and structure the request to be specific, proportional, and not unduly burdensome. Always include a brief note at the end reminding the user to verify against local rules and the court's scheduling order. Provide legal information only, not legal advice.`;
+
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
+      max_completion_tokens: 2048,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Case context: ${c.title || "Pro se civil case"}\n\nDraft the following discovery request:\n${description}` },
+      ],
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) res.write(text);
+    }
+
+    res.end();
+    return;
+  } catch (err) {
+    logger.error({ err }, "Error generating discovery draft");
+    if (!res.headersSent) return res.status(500).json({ error: "Failed to generate draft" });
+    res.end();
+    return;
+  }
+});
+
 export default router;

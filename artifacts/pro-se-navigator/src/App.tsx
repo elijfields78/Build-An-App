@@ -31,6 +31,7 @@ import AgentOrchestrator from "@/pages/cases/[id]/agents";
 import LegalPlaybookCenter from "@/pages/cases/[id]/playbooks";
 import LitigationTimeline from "@/pages/cases/[id]/timeline";
 import DocumentAssemblyCenter from "@/pages/cases/[id]/documents";
+import DiscoveryCommandCenter from "@/pages/cases/[id]/discovery";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
@@ -228,6 +229,7 @@ function Router() {
       <ProtectedRoute path="/cases/:id/playbooks" component={LegalPlaybookCenter} />
       <ProtectedRoute path="/cases/:id/timeline" component={LitigationTimeline} />
       <ProtectedRoute path="/cases/:id/documents" component={DocumentAssemblyCenter} />
+      <ProtectedRoute path="/cases/:id/discovery" component={DiscoveryCommandCenter} />
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />
