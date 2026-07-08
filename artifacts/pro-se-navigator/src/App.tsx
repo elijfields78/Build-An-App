@@ -33,6 +33,8 @@ import LitigationTimeline from "@/pages/cases/[id]/timeline";
 import DocumentAssemblyCenter from "@/pages/cases/[id]/documents";
 import DiscoveryCommandCenter from "@/pages/cases/[id]/discovery";
 import MotionResponseCockpit from "@/pages/cases/[id]/motions";
+import ServiceDefaultCenter from "@/pages/cases/[id]/service";
+import AppealsReconsiderationTriage from "@/pages/cases/[id]/appeals";
 import LegalResearch from "@/pages/research";
 import AiAssistant from "@/pages/assistant";
 import Pricing from "@/pages/pricing";
@@ -232,6 +234,8 @@ function Router() {
       <ProtectedRoute path="/cases/:id/documents" component={DocumentAssemblyCenter} />
       <ProtectedRoute path="/cases/:id/discovery" component={DiscoveryCommandCenter} />
       <ProtectedRoute path="/cases/:id/motions" component={MotionResponseCockpit} />
+      <ProtectedRoute path="/cases/:id/service" component={ServiceDefaultCenter} />
+      <ProtectedRoute path="/cases/:id/appeals" component={AppealsReconsiderationTriage} />
       
       <ProtectedRoute path="/research" component={LegalResearch} />
       <ProtectedRoute path="/assistant" component={AiAssistant} />

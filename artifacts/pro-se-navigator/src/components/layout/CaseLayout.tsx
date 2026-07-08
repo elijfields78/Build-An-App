@@ -6,7 +6,7 @@ import {
   FileText, Briefcase, Info, FileSearch, ShieldAlert, Scale, CheckSquare,
   UploadCloud, Mail, BookOpenCheck, CalendarClock, ClipboardList, BrainCircuit,
   Handshake, Gavel, LibraryBig, CalendarDays, FileStack, Search, Swords,
-  Hammer, ChevronDown,
+  Hammer, ChevronDown, UserCheck,
 } from "lucide-react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 
@@ -79,12 +79,14 @@ const TABS: TabDef[] = [
   { name: "Letters",       suffix: "/dispute-letter",  icon: Mail,          phase: "file"     },
   { name: "Discovery",     suffix: "/discovery",       icon: Search,        phase: "litigate" },
   { name: "Motions",       suffix: "/motions",         icon: Swords,        phase: "litigate" },
+  { name: "Service",       suffix: "/service",         icon: UserCheck,     phase: "litigate" },
   { name: "Docket",        suffix: "/deadlines",       icon: CalendarClock, phase: "litigate" },
   { name: "Tasks",         suffix: "/tasks",           icon: CheckSquare,   phase: "litigate" },
   { name: "Court Docs",    suffix: "/court-documents", icon: ShieldAlert,   phase: "litigate" },
   { name: "Admin Process", suffix: "/administrative",  icon: ClipboardList, phase: "litigate" },
   { name: "Case Law",      suffix: "/case-law",        icon: BookOpenCheck, phase: "litigate" },
   { name: "Settlement",    suffix: "/settlement",      icon: Handshake,     phase: "resolve"  },
+  { name: "Appeals",       suffix: "/appeals",         icon: Scale,         phase: "resolve"  },
   { name: "Playbooks",     suffix: "/playbooks",       icon: LibraryBig,    phase: "resolve"  },
   { name: "Agents",        suffix: "/agents",          icon: BrainCircuit,  phase: "resolve"  },
 ];
