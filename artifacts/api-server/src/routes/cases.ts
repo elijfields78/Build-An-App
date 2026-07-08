@@ -1065,6 +1065,69 @@ router.patch("/cases/:id/tasks/:tid", async (req, res) => {
   }
 });
 
+// Motion response outline — streaming
+router.post("/cases/:id/motions/draft", async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const caseId = parseInt(req.params.id);
+    const c = await getOwnedCase(userId, caseId);
+    if (!c) return res.status(404).json({ error: "Case not found" });
+
+    const { motionType, motionTitle, movant, keyFacts, customArgs } = req.body;
+    if (!motionType && !customArgs) return res.status(400).json({ error: "motionType or customArgs required" });
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+
+    const motionContext = [
+      motionType && `Motion type: ${motionType}`,
+      motionTitle && `Document title: ${motionTitle}`,
+      movant && `Filed by: ${movant}`,
+      keyFacts && `Key facts from tracker: ${keyFacts}`,
+      customArgs && `Additional arguments: ${customArgs}`,
+    ].filter(Boolean).join("\n");
+
+    const systemPrompt = `You are an experienced civil litigator helping a pro se litigant draft an opposition to a motion. 
+
+Generate a well-structured opposition brief outline that:
+1. States the legal standard the court applies to this motion type
+2. Identifies the movant's burden and where it fails
+3. Provides numbered opposition arguments with supporting legal principles
+4. Includes placeholder citations (marked [VERIFY CITATION]) that the user must independently verify
+5. Suggests any procedural requests (e.g., leave to amend, request for oral argument, Rule 56(d) affidavit)
+6. Ends with a brief conclusion paragraph
+
+Format clearly with section headings. Always include a prominent note that this is an outline requiring the user's review, amendment, and verification of all citations before filing. Provide legal information only, not legal advice.`;
+
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
+      max_completion_tokens: 3000,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Case: ${c.title || "Pro se civil case"}\n\n${motionContext}` },
+      ],
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) res.write(text);
+    }
+
+    res.end();
+    return;
+  } catch (err) {
+    logger.error({ err }, "Error generating motion response outline");
+    if (!res.headersSent) return res.status(500).json({ error: "Failed to generate outline" });
+    res.end();
+    return;
+  }
+});
+
 // Discovery AI draft — streaming
 router.post("/cases/:id/discovery/draft", async (req, res) => {
   try {
