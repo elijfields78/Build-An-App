@@ -6,7 +6,7 @@ import {
   caseTasksTable,
 } from "@workspace/db";
 import { getAuth } from "@clerk/express";
-import { eq, and, count, sql } from "drizzle-orm";
+import { eq, and, count, inArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -49,14 +49,14 @@ router.get("/dashboard", async (req, res) => {
       const evidenceCount = await db
         .select({ count: count() })
         .from(evidenceTable)
-        .where(sql`${evidenceTable.caseId} = ANY(${caseIds})`);
+        .where(inArray(evidenceTable.caseId, caseIds));
       totalEvidence = Number(evidenceCount[0]?.count ?? 0);
 
       const tasks = await db
         .select()
         .from(caseTasksTable)
         .where(
-          sql`${caseTasksTable.caseId} = ANY(${caseIds}) AND ${caseTasksTable.completed} = false`
+          and(inArray(caseTasksTable.caseId, caseIds), eq(caseTasksTable.completed, false))
         )
         .orderBy(caseTasksTable.sortOrder)
         .limit(10);

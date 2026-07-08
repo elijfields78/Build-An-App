@@ -68,11 +68,49 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         <div className="pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-          Navigation
+          Cases
         </div>
-        {navLinks.map(({ label, href, icon: Icon, active }) => (
+        {navLinks.slice(0, 2).map(({ label, href, icon: Icon, active }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+              active
+                ? "bg-primary text-white shadow-sm"
+                : "text-slate-400 hover:bg-sidebar-accent hover:text-white"
+            }`}
+          >
+            <Icon className={`h-4 w-4 shrink-0 ${active ? 'opacity-100' : 'opacity-70'}`} />
+            {label}
+          </Link>
+        ))}
+
+        <div className="pt-3 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          Tools
+        </div>
+        {navLinks.slice(2, 4).map(({ label, href, icon: Icon, active }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+              active
+                ? "bg-primary text-white shadow-sm"
+                : "text-slate-400 hover:bg-sidebar-accent hover:text-white"
+            }`}
+          >
+            <Icon className={`h-4 w-4 shrink-0 ${active ? 'opacity-100' : 'opacity-70'}`} />
+            {label}
+          </Link>
+        ))}
+
+        <div className="pt-3 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          Community
+        </div>
+        {navLinks.slice(4).map(({ label, href, icon: Icon, active }) => (
           <Link
             key={href}
             href={href}
