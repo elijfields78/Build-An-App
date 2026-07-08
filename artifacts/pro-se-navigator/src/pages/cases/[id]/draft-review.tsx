@@ -5,7 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { usePersistentState } from "@/hooks/usePersistentState";
-import { AlertTriangle, BookOpenCheck, CheckCircle2, FileCheck2, Gavel, ListChecks, ShieldCheck } from "lucide-react";
+import { AlertTriangle, BookOpenCheck, CheckCircle2, FileCheck2, Gavel, ListChecks, ShieldCheck, ShieldAlert } from "lucide-react";
+
+type SavedCitation = {
+  id: string;
+  caseName: string;
+  citation: string;
+  status?: string;
+  treatmentStatus?: string;
+  quoteAlignment?: string;
+  propositionAlignment?: string;
+};
+
+function isCitationQaSafe(citation: SavedCitation) {
+  return citation.status === "Verified"
+    && citation.treatmentStatus === "Good law / usable"
+    && citation.propositionAlignment === "Matches proposition"
+    && citation.quoteAlignment !== "Does not support proposition";
+}
 
 type ReviewCheck = {
   id: string;
@@ -36,8 +53,11 @@ const categoryTone = {
 export default function DraftReviewCenter({ params }: { params: { id: string } }) {
   const [draftText, setDraftText] = usePersistentState<string>(`case:${params.id}:draft-review-text`, "");
   const [reviewed, setReviewed] = usePersistentState<Record<string, boolean>>(`case:${params.id}:draft-review-checks`, {});
+  const [citations] = usePersistentState<SavedCitation[]>(`case:${params.id}:case-law-bank`, []);
   const complete = checks.filter((check) => reviewed[check.id]).length;
   const percent = Math.round((complete / checks.length) * 100);
+  const blockedCitations = citations.filter((citation) => !isCitationQaSafe(citation));
+  const qaSafeCitations = citations.filter(isCitationQaSafe);
 
   return (
     <CaseLayout caseId={params.id} title="Draft Review Center">
@@ -59,6 +79,21 @@ export default function DraftReviewCenter({ params }: { params: { id: string } }
               <div className="text-3xl font-mono font-bold text-primary">{complete}/{checks.length}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">checks cleared</div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className={blockedCitations.length > 0 ? "border-destructive/25 bg-destructive/5" : "border-emerald-500/25 bg-emerald-500/5"}>
+          <CardHeader>
+            <CardTitle className="font-serif flex items-center gap-2"><ShieldAlert className={blockedCitations.length > 0 ? "h-5 w-5 text-destructive" : "h-5 w-5 text-emerald-500"} /> Citation draft-safety gate</CardTitle>
+            <CardDescription>
+              Drafts should not use authority until the Case Law Bank marks it verified, good law/usable, and proposition-aligned.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+            <div className="rounded-lg border border-border/60 bg-background/60 p-3"><div className="text-2xl font-mono font-bold text-primary">{citations.length}</div><div className="text-[10px] uppercase tracking-widest text-muted-foreground">case-law items</div></div>
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3"><div className="text-2xl font-mono font-bold text-emerald-500">{qaSafeCitations.length}</div><div className="text-[10px] uppercase tracking-widest text-muted-foreground">QA-safe</div></div>
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3"><div className="text-2xl font-mono font-bold text-destructive">{blockedCitations.length}</div><div className="text-[10px] uppercase tracking-widest text-muted-foreground">blocked</div></div>
+            {blockedCitations.length > 0 && <div className="md:col-span-3 rounded-lg border border-destructive/20 bg-background/60 p-3 text-muted-foreground">Blocked authority: {blockedCitations.map((citation) => `${citation.caseName} (${citation.citation})`).join("; ")}. Complete citation QA before using these in a filing-ready draft.</div>}
           </CardContent>
         </Card>
 

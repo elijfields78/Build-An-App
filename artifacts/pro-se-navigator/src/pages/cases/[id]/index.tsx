@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileCheck2, FileSearch, FileStack, Gavel, Handshake, LibraryBig, Scale, ShieldAlert, UploadCloud } from "lucide-react";
+import { AlertCircle, ArrowRight, BrainCircuit, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileCheck2, FileSearch, FileStack, Gavel, Handshake, LibraryBig, Scale, ShieldAlert, UploadCloud, UserCheck } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 
@@ -14,6 +14,10 @@ const commandModules = [
   { label: "Timeline", href: "timeline", icon: CalendarDays, copy: "Chronological events connecting facts, proof, admin letters, filings, deadlines, and settlement moments.", tone: "text-blue-400" },
   { label: "Procedural Risk", href: "procedural-risk", icon: ShieldAlert, copy: "Jurisdiction, venue, service, standing, SOL, exhaustion, Rule 12, and local-rule risks.", tone: "text-destructive" },
   { label: "Docket & Deadlines", href: "deadlines", icon: CalendarClock, copy: "Response windows, motion clocks, default-readiness signals, and docket activity.", tone: "text-[#D4A843]" },
+  { label: "Service & Default", href: "service", icon: UserCheck, copy: "Track service targets, proof of service, response windows, appearances, and default-readiness checks.", tone: "text-destructive" },
+  { label: "Discovery", href: "discovery", icon: FileSearch, copy: "Track interrogatories, RFPs, RFAs, subpoenas, depositions, disclosures, and discovery deadlines.", tone: "text-[#D4A843]" },
+  { label: "Motions & Orders", href: "motions", icon: Gavel, copy: "Track motions, orders, response deadlines, hearings, argument matrices, and response packets.", tone: "text-destructive" },
+  { label: "Appeals & Reconsideration", href: "appeals", icon: Scale, copy: "Track adverse orders, appeal/reconsideration deadlines, issue preservation, standards of review, and appellate packets.", tone: "text-[#D4A843]" },
   { label: "Admin Process", href: "administrative", icon: ClipboardList, copy: "Notice, opportunity to cure, intent to escalate, delivery proof, and record building.", tone: "text-blue-400" },
   { label: "Case Law Bank", href: "case-law", icon: Scale, copy: "Authority storage, citation verification, proposition matching, and draft safety.", tone: "text-purple-400" },
   { label: "Draft Review", href: "draft-review", icon: FileCheck2, copy: "Preflight complaint, motion, answer, response, affidavit, and demand drafts.", tone: "text-emerald-500" },
